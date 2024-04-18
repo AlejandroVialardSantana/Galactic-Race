@@ -7,7 +7,7 @@ export class SpaceTube {
     const path = new THREE.CatmullRomCurve3(points, true); // La curva se cierra
     const tubeGeometry = new THREE.TubeGeometry(path, 200, 2, 20, true); // true para cerrar el tubo
 
-    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Material rojo para el ejemplo
+    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
     this.mesh = new THREE.Mesh(tubeGeometry, material);
   }
 
@@ -48,5 +48,9 @@ export class SpaceTube {
 
   getMesh() {
     return this.mesh;
+  }
+
+  getGeometry() {
+    return this.mesh.geometry;
   }
 }

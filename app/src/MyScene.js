@@ -3,10 +3,13 @@ import { TrackballControls } from "../libs/TrackballControls.js"; // Asegúrate 
 import { GUI } from "../libs/dat.gui.module.js"; // Asegúrate de tener la ruta correcta
 
 import { SpaceTube } from "./objects/SpaceTube.js"; // Asegúrate de que la ruta a tu clase Figure sea correcta
+import { SpaceShip } from "./objects/SpaceShip.js"; // Asegúrate de que la ruta a tu clase Figure sea correcta
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
+
+    this.clock = new THREE.Clock(); // Añade un reloj para manejar el tiempo.
 
     this.renderer = this.createRenderer(myCanvas);
 
@@ -19,9 +22,11 @@ class MyScene extends THREE.Scene {
     this.axis = new THREE.AxesHelper(6);
     this.add(this.axis);
 
-    this.figure = new SpaceTube();
+    this.tube = new SpaceTube();
+    this.spaceShip = new SpaceShip(this.tube.getGeometry());
 
-    this.add(this.figure.getMesh());
+    this.add(this.tube.getMesh());
+    this.add(this.spaceShip);
   }
 
   createCamera() {
@@ -115,6 +120,11 @@ class MyScene extends THREE.Scene {
   }
 
   update() {
+    const delta = this.clock.getDelta();
+    const travelTime = 20; 
+    const t = (this.clock.elapsedTime % travelTime) / travelTime; 
+    this.spaceShip.update(t);
+
     // Se le indica al visualizador que renderice la escena
     this.renderer.render(this, this.camera);
 
