@@ -1,15 +1,19 @@
 import * as THREE from "three";
-import { TrackballControls } from "../libs/TrackballControls.js"; // Asegúrate de tener la ruta correcta
-import { GUI } from "../libs/dat.gui.module.js"; // Asegúrate de tener la ruta correcta
+import { TrackballControls } from "../libs/TrackballControls.js";
+import { GUI } from "../libs/dat.gui.module.js";
 
-import { SpaceTube } from "./objects/SpaceTube.js"; // Asegúrate de que la ruta a tu clase Figure sea correcta
-import { SpaceShip } from "./objects/SpaceShip.js"; // Asegúrate de que la ruta a tu clase Figure sea correcta
+import { SpaceTube } from "./objects/SpaceTube.js";
+import { SpaceShip } from "./objects/SpaceShip.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
 
-    this.clock = new THREE.Clock(); // Añade un reloj para manejar el tiempo.
+    this.travelTime = 20;
+    this.velocity = 1 / this.travelTime;
+    this.t = 0;
+
+    this.clock = new THREE.Clock();
 
     this.renderer = this.createRenderer(myCanvas);
 
@@ -120,10 +124,18 @@ class MyScene extends THREE.Scene {
   }
 
   update() {
-    const delta = this.clock.getDelta();
-    const travelTime = 20; 
-    const t = (this.clock.elapsedTime % travelTime) / travelTime; 
-    this.spaceShip.update(t);
+    const delta = this.clock.getDelta(); // Tiempo desde el último frame
+
+    this.t += this.velocity * delta;
+
+    console.log(this.velocity);
+
+    if (this.t > 1) {
+      this.t -= 1;
+      this.velocity *= 1.1;
+    }
+
+    this.spaceShip.update(this.t);
 
     // Se le indica al visualizador que renderice la escena
     this.renderer.render(this, this.camera);
