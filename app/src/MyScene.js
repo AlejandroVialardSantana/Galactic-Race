@@ -4,6 +4,8 @@ import { GUI } from "../libs/dat.gui.module.js";
 
 import { SpaceTube } from "./objects/SpaceTube.js";
 import { SpaceShip } from "./objects/SpaceShip.js";
+import { Alien } from "./objects/Alien.js";
+import { Shield } from "./objects/Shield.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -28,9 +30,12 @@ class MyScene extends THREE.Scene {
 
     this.tube = new SpaceTube();
     this.spaceShip = new SpaceShip(this.tube.getGeometry());
+    this.alien = new Alien();
+    // this.shield = new Shield();
 
     this.add(this.tube.getMesh());
     this.add(this.spaceShip);
+    // this.add(this.alien);
   }
 
   createCamera() {
@@ -128,20 +133,22 @@ class MyScene extends THREE.Scene {
 
     this.t += this.velocity * delta;
 
-    console.log(this.velocity);
+    // console.log(this.velocity);
 
     if (this.t > 1) {
       this.t -= 1;
       this.velocity *= 1.1;
     }
 
-    this.spaceShip.update(this.t);
+    this.spaceShip.update(this.t, delta);
 
     // Se le indica al visualizador que renderice la escena
     this.renderer.render(this, this.camera);
 
     // Se actualiza la posición de la cámara según su controlador
     this.cameraControl.update();
+
+    this.spaceShip.inputManager.resetJustPressed();
 
     // Cada vez que se realice un cambio, se reenderiza de nuevo la escena
     requestAnimationFrame(() => this.update());

@@ -1,13 +1,20 @@
 import * as THREE from "three";
+
 import { OBJLoader } from "../../libs/OBJLoader.js";
 import { MTLLoader } from "../../libs/MTLLoader.js";
+import { VALUE_A, VALUE_D } from "../../libs/keycode.esm.js";
+import { InputManager } from "../input/InputManager.js";
 
 class SpaceShip extends THREE.Object3D {
   constructor(tubeGeometry) {
     super();
 
-    this.nodoPosOrientTubo = new THREE.Object3D();
-    this.nodoOrientacion = new THREE.Object3D();
+    this.inputManager = new InputManager();
+
+    this.angularPosition = 0;
+
+    this.positionOnTube = new THREE.Object3D();
+    this.orientationNode = new THREE.Object3D();
 
     this.tube = tubeGeometry;
     this.tubePath = tubeGeometry.parameters.path;
@@ -24,31 +31,40 @@ class SpaceShip extends THREE.Object3D {
         objectLoader.load(
           "../models/D5SpaceShip/d5class.obj",
           function (object) {
-            object.scale.set(0.7, 0.7, 0.7);
+            object.scale.set(0.6, 0.6, 0.6);
             object.rotateY(Math.PI);
             object.translateY(4);
-            this.nodoOrientacion.add(object);
-            this.nodoPosOrientTubo.add(this.nodoOrientacion);
+            this.orientationNode.add(object);
+            this.positionOnTube.add(this.orientationNode);
           }.bind(this)
         );
       }.bind(this)
     );
 
-    this.add(this.nodoPosOrientTubo);
+    this.add(this.positionOnTube);
   }
 
   update(t) {
+    if (this.inputManager.wasJustPressed(VALUE_A)) {
+      this.angularPosition += 0.1;
+    }
+
+    if (this.inputManager.wasJustPressed(VALUE_D)) {
+      this.angularPosition -= 0.1;
+    }
+
+    this.angularPosition = ((this.angularPosition % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    this.orientationNode.rotation.z = this.angularPosition;
+
     var pos = this.tubePath.getPointAt(t);
-    this.nodoPosOrientTubo.position.copy(pos);
+    this.positionOnTube.position.copy(pos);
 
     var tangent = this.tubePath.getTangentAt(t);
     pos.add(tangent);
 
     var segment = Math.floor(t * this.tubeSegments);
-    this.nodoPosOrientTubo.up = this.tube.normals[segment];
-    this.nodoPosOrientTubo.lookAt(pos);
-
-    this.nodoOrientacion.rotateZ(0.01);
+    this.positionOnTube.up = this.tube.normals[segment];
+    this.positionOnTube.lookAt(pos);
   }
 }
 
