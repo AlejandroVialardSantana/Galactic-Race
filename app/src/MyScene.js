@@ -6,6 +6,8 @@ import { SpaceTube } from "./objects/SpaceTube.js";
 import { SpaceShip } from "./objects/SpaceShip.js";
 import { Alien } from "./objects/Alien.js";
 import { Shield } from "./objects/Shield.js";
+import { Asteroid } from "./objects/Asteroid.js";
+import { UFO } from "./objects/UFO.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -31,11 +33,16 @@ class MyScene extends THREE.Scene {
     this.tube = new SpaceTube();
     this.spaceShip = new SpaceShip(this.tube.getGeometry());
     this.alien = new Alien();
-    // this.shield = new Shield();
+    this.asteroid = new Asteroid();
+    this.shield = new Shield();
+    this.ufo = new UFO();
 
-    this.add(this.tube.getMesh());
-    this.add(this.spaceShip);
+    // this.add(this.tube.getMesh());
+    // this.add(this.spaceShip);
     // this.add(this.alien);
+    // this.add(this.asteroid);
+    // this.add(this.shield);
+    // this.add(this.ufo);
   }
 
   createCamera() {

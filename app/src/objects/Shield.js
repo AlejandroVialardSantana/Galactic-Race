@@ -2,110 +2,145 @@ import * as THREE from "three";
 import { CSG } from "../../libs/CSG-v2.js";
 
 class Shield extends THREE.Object3D {
+  constructor() {
+    super();
 
-    constructor() {
-        super();
+    const field = new THREE.Object3D();
 
-        const field = new THREE.Object3D();
+    const base = this.createFieldBase();
 
-        const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0xc6c6c6 }); // Color del cuerpo
-        const frameMaterial = new THREE.MeshPhongMaterial({ color: 0xfcfcfc }); // Color del marco
+    const rood = this.createRood();
 
-        const csg1 = this.createFieldMesh(bodyMaterial);
-        const csg2 = this.createFieldMesh(frameMaterial);
-        const csg3 = this.createFieldMesh(frameMaterial);
+    const rivets = this.createRivets();
 
-        const rood = this.createRood();
+    field.add(base);
+    field.add(rood);
+    field.add(...rivets);
 
-        var csg = new CSG();
+    return field;
+  }
 
-        csg1.position.set(0, 0, 0);
-        csg2.scale.set(0.8, 0.8, 1);
-        csg2.position.set(0, 0, 0);
-        csg3.scale.set(0.9, 0.9, 0.6);
-        csg3.position.set(0, 0, 0);
-        rood.position.set(0, 0.5, 0.1);
+  createFieldBase() {
+    var shape = this.createShieldShape();
+    var baseMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    var detailMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc });
 
-        csg.subtract([csg1, csg2]);
+    var base = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(shape, {
+        depth: 0.12,
+        steps: 1,
+        curveSegments: 10,
+        bevelEnabled: true,
+      }),
+      baseMaterial
+    );
+    base.position.set(0, 0, -0.05);
 
-        const result = csg.toMesh();
+    var baseDetail = this.createDetail(
+      shape,
+      detailMaterial,
+      0.85,
+      0,
+      0.2,
+      0.44
+    );
 
-        field.add(result);
-        field.add(csg3);
-        field.add(rood);
+    var baseDetailOpposite = this.createDetail(
+      shape,
+      detailMaterial,
+      0.85,
+      0,
+      0.2,
+      -0.49
+    );
 
-        return field;
-    }
-    
+    var baseFront = this.createDetail(
+      shape,
+      detailMaterial,
+      0.85,
+      0,
+      0.2,
+      -0.06,
+      0.92
+    );
 
-    createFieldBase() {
-       
-        var baseGeometry = new THREE.CylinderGeometry(2, 2, 0.3, 32);
-        var baseMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
-        var base = new THREE.Mesh(baseGeometry, baseMaterial);
-        this.add(base);
-        return base;
-    }
+    var csg = new CSG();
+    csg.subtract([base, baseDetail, baseDetailOpposite]);
+    var shield = csg.toMesh();
+    shield.add(baseFront);
 
-    createSquare() {
-        var squareGeometry = new THREE.BoxGeometry(4, 3, 0.3);
-        var squareMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
-        var square = new THREE.Mesh(squareGeometry, squareMaterial);
-        this.add(square);
-        return square;
-    }
+    shield.position.set(0, -1.15, 0);
 
-    createCilinder() {
+    return shield;
+  }
 
-        var cilinderGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 32);
-        var cilinderMaterial = new THREE.MeshPhongMaterial({ color: 0x00FF00 });
+  createShieldShape() {
+    var shape = new THREE.Shape();
 
-        cilinderGeometry.rotateX(Math.PI / 2);
-       
-        var cilinder = new THREE.Mesh(cilinderGeometry, cilinderMaterial);
-        this.add(cilinder);
-        return cilinder;
-    }
+    shape.moveTo(0, 0);
+    shape.lineTo(0.7, 0.3);
+    shape.quadraticCurveTo(1, 0.3, 1, 1.9);
+    shape.quadraticCurveTo(0.6, 2, 0.6, 2.3);
+    shape.lineTo(-0.6, 2.3);
+    shape.quadraticCurveTo(-0.6, 2, -1, 1.9);
+    shape.quadraticCurveTo(-1, 0.3, -0.7, 0.3);
 
-    createRood() {
-        var boxGeometry1 = new THREE.BoxGeometry(2, 0.3, 1);
-        var boxGeometry2 = new THREE.BoxGeometry(0.3, 2, 1);
-        var boxMaterial = new THREE.MeshPhongMaterial({ color: 0xCB3234 });
+    return shape;
+  }
 
-        var box = new THREE.Mesh(boxGeometry1, boxMaterial);
-        var box2 = new THREE.Mesh(boxGeometry2, boxMaterial);
-        
-        var csg = new CSG();
-        
-        csg.union([box, box2]);
+  createDetail(shape, material, scale, posX, posY, posZ, scaleZ = 1) {
+    var geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.13,
+      steps: 1,
+      bevelEnabled: true,
+    });
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.scale.set(scale, scale, scaleZ);
+    mesh.position.set(posX, posY, posZ);
+    return mesh;
+  }
 
-        box = csg.toMesh();
-        
-        return box;
-    }
+  createRood() {
+    var boxGeometry1 = new THREE.BoxGeometry(1, 0.3, 0.8);
+    var boxGeometry2 = new THREE.BoxGeometry(0.3, 1, 0.8);
+    var boxMaterial = new THREE.MeshPhongMaterial({ color: 0xcb3234 });
 
-    createFieldMesh(material) {
-        const base = this.createFieldBase();
-        const square = this.createSquare();
-        const cilinder = this.createCilinder();
-        const cilinder2 = this.createCilinder();
-    
-        base.rotateX(Math.PI / 2);
-        square.position.set(0, 1.5, 0);
-        cilinder.position.set(0, 3, 0);
-        cilinder2.position.set(0, 3, 0);
-        cilinder.translateX(-2);
-        cilinder2.translateX(2);
-    
-        const csg = new CSG();
-        csg.union([base, square]);
-        csg.subtract([cilinder, cilinder2]);
+    var boxVertical = new THREE.Mesh(boxGeometry1, boxMaterial);
+    var boxHorizontal = new THREE.Mesh(boxGeometry2, boxMaterial);
 
-        const resultado = csg.toMesh();
-        resultado.material = material;
-    
-        return resultado;
-    }
+    var csg = new CSG();
+
+    csg.union([boxVertical, boxHorizontal]);
+
+    var rood = csg.toMesh();
+
+    return rood;
+  }
+
+  createRivets() {
+    var rivetGeometry = new THREE.SphereGeometry(0.04, 32, 32);
+    var rivetMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+
+    var rivet1 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet1.position.set(0.94, 0.72, 0.25);
+
+    var rivet2 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet2.position.set(-0.94, 0.72, 0.25);
+
+    var rivet3 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet3.position.set(0, -1.05, 0.25);
+
+    var rivet4 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet4.position.set(0.97, 0.74, -0.23);
+
+    var rivet5 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet5.position.set(-0.97, 0.74, -0.23);
+
+    var rivet6 = new THREE.Mesh(rivetGeometry, rivetMaterial);
+    rivet6.position.set(0, -1.1, -0.23);
+
+    return [rivet1, rivet2, rivet3, rivet4, rivet5, rivet6];
+  }
 }
 
 export { Shield };
