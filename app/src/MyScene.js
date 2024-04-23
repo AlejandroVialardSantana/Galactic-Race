@@ -9,6 +9,7 @@ import { Shield } from "./objects/Shield.js";
 import { Asteroid } from "./objects/Asteroid.js";
 import { UFO } from "./objects/UFO.js";
 import { ElectricFence } from "./objects/ElectricFence.js";
+import { Robot } from "./objects/Robot.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
@@ -38,6 +39,7 @@ class MyScene extends THREE.Scene {
     this.shield = new Shield();
     this.ufo = new UFO();
     this.electricFence = new ElectricFence();
+    this.robot = new Robot();
 
     // this.add(this.tube.getMesh());
     // this.add(this.spaceShip);
@@ -46,6 +48,7 @@ class MyScene extends THREE.Scene {
     // this.add(this.shield);
     // this.add(this.ufo);
     // this.add(this.electricFence);
+    this.add(this.robot);
   }
 
   createCamera() {
