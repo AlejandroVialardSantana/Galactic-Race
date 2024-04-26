@@ -11,7 +11,7 @@ class SpaceShip extends THREE.Object3D {
 
     this.inputManager = new InputManager();
 
-    this.angularPosition = 0;
+    this.angularPosition = Math.PI;
 
     this.positionOnTube = new THREE.Object3D();
     this.orientationNode = new THREE.Object3D();
@@ -44,13 +44,15 @@ class SpaceShip extends THREE.Object3D {
     this.add(this.positionOnTube);
   }
 
-  update(t) {
-    if (this.inputManager.wasJustPressed(VALUE_A)) {
-      this.angularPosition += 0.1;
+  update(t, delta) {
+    const turnRate = 2 * Math.PI;
+
+    if (this.inputManager.isKeyPressed(VALUE_A)) {
+      this.angularPosition += turnRate * delta;
     }
 
-    if (this.inputManager.wasJustPressed(VALUE_D)) {
-      this.angularPosition -= 0.1;
+    if (this.inputManager.isKeyPressed(VALUE_D)) {
+      this.angularPosition -= turnRate * delta;
     }
 
     this.angularPosition = ((this.angularPosition % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);

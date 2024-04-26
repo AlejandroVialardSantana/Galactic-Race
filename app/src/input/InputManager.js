@@ -5,7 +5,6 @@ class InputManager {
 
         document.addEventListener('keydown', (event) => {
             if (!this.keys[event.key]) {
-                // Recién presionada
                 this.justPressed[event.key] = true; 
             }
             this.keys[event.key] = true;
@@ -19,15 +18,6 @@ class InputManager {
 
     isKeyPressed(key) {
         return this.keys[key];
-    }
-
-    wasJustPressed(key) {
-        if (this.justPressed[key]) {
-            // Reinicia el estado de recién presionada
-            this.justPressed[key] = false; 
-            return true;
-        }
-        return false;
     }
 
     resetJustPressed() {
