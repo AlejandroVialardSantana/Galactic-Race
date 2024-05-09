@@ -23,6 +23,8 @@
 
       this.clock = new THREE.Clock();
 
+      this.ufos = [];
+
       this.renderer = this.createRenderer(myCanvas);
 
       this.gui = this.createGUI();
@@ -37,24 +39,41 @@
       this.tube = new SpaceTube();
       this.spaceShip = new SpaceShip(this.tube.getGeometry());
       
-      this.objectFactory = new ObjectFactory(this.tube.getGeometry());
-
-      this.addMultipleObjects("Alien", 10, 0.1, 4, Math.PI / 2);
-      this.addMultipleObjects("Asteroid", 10, 0.2, 4, Math.PI / 2);
-      this.addMultipleObjects("Robot", 2, 0.3, 4, Math.PI / 2);
-      this.addMultipleObjects("UFO", 2, 0.4, 7, Math.PI / 2);
+      this.addAliens(20);
+      this.addRobots(7);
+      this.addUFOs(5);
 
       this.add(this.tube.getMesh());
       this.add(this.spaceShip);
     }
 
-    addMultipleObjects(type, count, tStart, height = 0, angle = 0) {
-      const tStep = (1 - tStart) / count;
-      for (let i = 0; i < count; i++) {
-        const obj = this.objectFactory.createObjectAtT(type, tStart + i * tStep, height, angle);
-        this.add(obj);
+    addAliens(numAliens) {
+      for (let i = 0; i < numAliens; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const alien = new Alien(this.tube.getGeometry(), t, angularOffset);
+        this.add(alien);
       }
-    }    
+    }
+
+    addRobots(numRobots) {
+      for (let i = 0; i < numRobots; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const robot = new Robot(this.tube.getGeometry(), t, angularOffset);
+        this.add(robot);
+      }
+    }
+
+    addUFOs(numUFOs) {
+      for (let i = 0; i < numUFOs; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const ufo = new UFO(this.tube.getGeometry(), t, angularOffset);
+        this.ufos.push(ufo);
+        this.add(ufo);
+      }
+    }
 
     createCamera() {
       // Se crea una cámara
@@ -159,6 +178,8 @@
       }
 
       this.spaceShip.update(this.t, delta);
+
+      this.ufos.forEach((ufo) => ufo.update(delta));
 
       // Se le indica al visualizador que renderice la escena
       this.renderer.render(this, this.camera);

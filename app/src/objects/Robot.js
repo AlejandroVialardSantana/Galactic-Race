@@ -4,11 +4,11 @@ import { CSG } from "../../libs/CSG-v2.js";
 
 class Robot extends THREE.Object3D {
     
-    constructor() {
+    constructor(tubeGeometry, t, angularPosition) {
         
         super();
 
-        const robot = new THREE.Object3D();
+        this.robot = new THREE.Object3D();
 
         const base = this.createBase();
         const wheels = this.createWheels();
@@ -23,17 +23,28 @@ class Robot extends THREE.Object3D {
         backBone.position.set(0, 0.44, 0);
         eye.position.set(0, 1.3, 0.15);
         
-        robot.add(base);
-        robot.add(wheels);
-        robot.add(backBone);
-        robot.add(top);
-        robot.add(neck);
-        robot.add(head);
-        robot.add(arm);
-        robot.add(eye);
+        this.robot.add(base);
+        this.robot.add(wheels);
+        this.robot.add(backBone);
+        this.robot.add(top);
+        this.robot.add(neck);
+        this.robot.add(head);
+        this.robot.add(arm);
+        this.robot.add(eye);
 
-        return robot;
+        this.robot.position.set(0, 2.1, 0);
+        this.robot.rotateY(Math.PI);
 
+        this.angularPosition = angularPosition;
+
+        this.positionOnTube = new THREE.Object3D();
+        this.orientationNode = new THREE.Object3D();
+
+        this.orientationNode.add(this.robot);
+        this.positionOnTube.add(this.orientationNode);
+        this.add(this.positionOnTube);
+
+        this.positionateOnTube(tubeGeometry, t);
     }
 
     createBase() {
@@ -200,6 +211,21 @@ class Robot extends THREE.Object3D {
 
         return eye;
     }
+
+    positionateOnTube(tubeGeometry, t) {
+        const path = tubeGeometry.parameters.path;
+        const pos = path.getPointAt(t);
+        this.positionOnTube.position.copy(pos);
+    
+        const tangent = path.getTangentAt(t);
+        pos.add(tangent);
+    
+        const segment = Math.floor(t * tubeGeometry.parameters.tubularSegments);
+        this.positionOnTube.up = tubeGeometry.normals[segment];
+        this.positionOnTube.lookAt(pos);
+    
+        this.orientationNode.rotation.z = this.angularPosition;
+      }
 }
 
 export { Robot };

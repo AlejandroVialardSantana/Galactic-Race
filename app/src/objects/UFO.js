@@ -1,8 +1,15 @@
 import * as THREE from "three";
 
 class UFO extends THREE.Object3D {
-  constructor() {
+  constructor(tubeGeometry, t, angularPosition) {
     super();
+
+    this.animationTime = 0;
+    this.bobbingAmplitude = 0.5;
+    this.rotationSpeed = Math.PI / 2;
+    this.bobbingFrequency = 2; 
+    this.horizontalMovementAmplitude = 5; 
+    this.horizontalMovementFrequency = 1;
 
     this.material = new THREE.MeshNormalMaterial({ color: 0x555555 });
 
@@ -29,9 +36,25 @@ class UFO extends THREE.Object3D {
 
     semisphere.position.set(0, 2.2, 0);
 
-    this.add(semisphere);
+    this.ufo.add(semisphere);
+
     this.addLegs();
     this.addLights();
+
+    this.ufo.position.set(0, 7, 0);
+    this.ufo.rotateY(Math.PI);
+    this.ufo.scale.set(0.5, 0.5, 0.5);
+
+    this.angularPosition = angularPosition;
+
+    this.positionOnTube = new THREE.Object3D();
+    this.orientationNode = new THREE.Object3D();
+
+    this.orientationNode.add(this.ufo);
+    this.positionOnTube.add(this.orientationNode);
+    this.add(this.positionOnTube);
+
+    this.positionateOnTube(tubeGeometry, t);
   }
 
   createUFO() {
@@ -69,14 +92,14 @@ class UFO extends THREE.Object3D {
       const legComplete = this.createLeg();
       legComplete.position.set(position.x, 0.8, position.z);
       legComplete.rotation.z = position.angle;
-      this.add(legComplete);
+      this.ufo.add(legComplete);
     });
 
     positionsZ.forEach((position) => {
       const legComplete = this.createLeg();
       legComplete.position.set(position.x, 0.8, position.z);
       legComplete.rotation.x = position.angle;
-      this.add(legComplete);
+      this.ufo.add(legComplete);
     });
   }
 
@@ -133,7 +156,7 @@ class UFO extends THREE.Object3D {
         greenLightDecay
       );
       greenLight.position.copy(position);
-      this.add(greenLight);
+      this.ufo.add(greenLight);
     });
 
     lightPositions.forEach((position) => {
@@ -144,11 +167,36 @@ class UFO extends THREE.Object3D {
         decay
       );
       light.position.set(position.x, position.y, position.z);
-      this.add(light);
+      this.ufo.add(light);
     });
   }
 
-  update() {}
+  positionateOnTube(tubeGeometry, t) {
+    const path = tubeGeometry.parameters.path;
+    const pos = path.getPointAt(t);
+    this.positionOnTube.position.copy(pos);
+
+    const tangent = path.getTangentAt(t);
+    pos.add(tangent);
+
+    const segment = Math.floor(t * tubeGeometry.parameters.tubularSegments);
+    this.positionOnTube.up = tubeGeometry.normals[segment];
+    this.positionOnTube.lookAt(pos);
+
+    this.orientationNode.rotation.z = this.angularPosition;
+  }
+
+  update(delta) {
+    this.animationTime += delta;
+
+    this.ufo.rotation.y += this.rotationSpeed * delta;
+
+    const bobbingMovement = this.bobbingAmplitude * Math.sin(this.animationTime * this.bobbingFrequency);
+    this.ufo.position.y = 7 + bobbingMovement; 
+
+    const horizontalMovement = this.horizontalMovementAmplitude * Math.sin(this.animationTime * this.horizontalMovementFrequency);
+    this.ufo.position.x = horizontalMovement;
+  }
 }
 
 export { UFO };
