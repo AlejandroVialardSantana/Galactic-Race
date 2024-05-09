@@ -2,10 +2,10 @@ import * as THREE from "three";
 import { CSG } from "../../libs/CSG-v2.js";
 
 class Shield extends THREE.Object3D {
-  constructor() {
+  constructor(tubeGeometry, t, angularPosition) {
     super();
 
-    const field = new THREE.Object3D();
+    this.field = new THREE.Object3D();
 
     const base = this.createFieldBase();
 
@@ -13,11 +13,24 @@ class Shield extends THREE.Object3D {
 
     const rivets = this.createRivets();
 
-    field.add(base);
-    field.add(rood);
-    field.add(...rivets);
+    this.field.add(base);
+    this.field.add(rood);
+    this.field.add(...rivets);
 
-    return field;
+    this.field.position.set(0, 2.4, 0);
+    this.field.scale.set(0.3, 0.3, 0.3);
+
+    this.angularPosition = angularPosition;
+
+    this.positionOnTube = new THREE.Object3D();
+    this.orientationNode = new THREE.Object3D();
+
+    this.orientationNode.add(this.field);
+    this.positionOnTube.add(this.orientationNode);
+
+    this.add(this.positionOnTube);
+
+    this.positionateOnTube(tubeGeometry, t);
   }
 
   createFieldBase() {
@@ -140,6 +153,21 @@ class Shield extends THREE.Object3D {
     rivet6.position.set(0, -1.1, -0.23);
 
     return [rivet1, rivet2, rivet3, rivet4, rivet5, rivet6];
+  }
+
+  positionateOnTube(tubeGeometry, t) {
+    const path = tubeGeometry.parameters.path;
+    const pos = path.getPointAt(t);
+    this.positionOnTube.position.copy(pos);
+
+    const tangent = path.getTangentAt(t);
+    pos.add(tangent);
+
+    const segment = Math.floor(t * tubeGeometry.parameters.tubularSegments);
+    this.positionOnTube.up = tubeGeometry.normals[segment];
+    this.positionOnTube.lookAt(pos);
+
+    this.orientationNode.rotation.z = this.angularPosition;
   }
 }
 

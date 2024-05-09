@@ -2,8 +2,6 @@
   import { TrackballControls } from "../libs/TrackballControls.js";
   import { GUI } from "../libs/dat.gui.module.js";
 
-  import { ObjectFactory } from "../src/factories/ObjectFactory.js";
-
   import { SpaceTube } from "./objects/SpaceTube.js";
   import { SpaceShip } from "./objects/SpaceShip.js";
   import { Alien } from "./objects/Alien.js";
@@ -27,8 +25,6 @@
 
       this.renderer = this.createRenderer(myCanvas);
 
-      this.gui = this.createGUI();
-
       this.createCamera();
 
       this.createLights();
@@ -42,6 +38,9 @@
       this.addAliens(20);
       this.addRobots(7);
       this.addUFOs(5);
+      this.addElectricFences(5);
+      this.addAsteroids(10);
+      this.addShields(10);
 
       this.add(this.tube.getMesh());
       this.add(this.spaceShip);
@@ -72,6 +71,33 @@
         const ufo = new UFO(this.tube.getGeometry(), t, angularOffset);
         this.ufos.push(ufo);
         this.add(ufo);
+      }
+    }
+
+    addElectricFences(numFences) {
+      for (let i = 0; i < numFences; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const fence = new ElectricFence(this.tube.getGeometry(), t, angularOffset);
+        this.add(fence);
+      } 
+    }
+
+    addAsteroids(numAsteroids) {
+      for (let i = 0; i < numAsteroids; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const asteroid = new Asteroid(this.tube.getGeometry(), t, angularOffset);
+        this.add(asteroid);
+      }
+    }
+
+    addShields(numShields) {
+      for (let i = 0; i < numShields; i++) {
+        const t = Math.random();
+        const angularOffset = Math.random() * 2 * Math.PI;
+        const shield = new Shield(this.tube.getGeometry(), t, angularOffset);
+        this.add(shield);
       }
     }
 
@@ -129,20 +155,6 @@
       this.add(pointLight);
     }
 
-    createGUI() {
-      var gui = new GUI();
-
-      this.guiControls = new (function () {
-        this.lightIntensity = 0.5;
-      })();
-
-      gui
-        .add(this.guiControls, "lightIntensity", 0, 1, 0.1)
-        .name("Intensidad de la luz: ");
-
-      return gui;
-    }
-
     getCamera() {
       return this.camera;
     }
@@ -166,11 +178,9 @@
     }
 
     update() {
-      const delta = this.clock.getDelta(); // Tiempo desde el último frame
+      const delta = this.clock.getDelta();
 
       this.t += this.velocity * delta;
-
-      // console.log(this.velocity);
 
       if (this.t > 1) {
         this.t -= 1;
