@@ -16,7 +16,7 @@
     constructor(myCanvas) {
       super();
 
-      this.travelTime = 20;
+      this.travelTime = 40;
       this.velocity = 1 / this.travelTime;
       this.t = 0;
 
@@ -35,8 +35,11 @@
       this.tube = new SpaceTube();
       this.spaceShip = new SpaceShip(this.tube.getGeometry());
       
-      this.cameraManager = new CameraManager(this, this.renderer, this.spaceShip);
+      this.cameraManager = new CameraManager(this, this.renderer, this.spaceShip.chaseCamera);
 
+      this.cameraHelper = new THREE.CameraHelper(this.spaceShip.chaseCamera);
+
+      this.add(this.cameraHelper);
       this.addAliens(20);
       this.addRobots(7);
       this.addUFOs(5);
@@ -127,12 +130,12 @@
     }
 
     onWindowResize() {
-      this.cameraManager.onWindowResize();
+      this.cameraManager.update();
     }
 
     onKeyDown(event) {
       if (event.key === 'c') {
-          this.cameraManager.switchCamera();
+          this.cameraManager.switchCamera(this.spaceShip.chaseCamera);
       }
     }
 
@@ -153,7 +156,7 @@
       });
   
       if (this.cameraManager && this.cameraManager.currentCamera) {
-          this.renderer.render(this, this.cameraManager.currentCamera);
+          this.renderer.render(this, this.cameraManager.getCurrentCamera());
       } else {
           console.error('No camera available to render the scene.');
       }

@@ -13,6 +13,10 @@ class SpaceShip extends THREE.Object3D {
 
     this.angularPosition = Math.PI;
 
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    this.chaseCamera = new THREE.PerspectiveCamera(100, aspectRatio, 0.1, 500);
+    this.chaseCamera.position.set(0, 4, -10);
+
     this.positionOnTube = new THREE.Object3D();
     this.orientationNode = new THREE.Object3D();
 
@@ -31,9 +35,10 @@ class SpaceShip extends THREE.Object3D {
         objectLoader.load(
           "../models/D5SpaceShip/d5class.obj",
           function (object) {
-            object.scale.set(0.6, 0.6, 0.6);
+            object.scale.set(0.2, 0.2, 0.2);
             object.rotateY(Math.PI);
-            object.translateY(4);
+            object.translateY(2.5);
+            object.add(this.chaseCamera);
             this.orientationNode.add(object);
             this.positionOnTube.add(this.orientationNode);
           }.bind(this)
@@ -48,11 +53,11 @@ class SpaceShip extends THREE.Object3D {
     const turnRate = 2 * Math.PI;
 
     if (this.inputManager.isKeyPressed(VALUE_A)) {
-      this.angularPosition += turnRate * delta;
+      this.angularPosition -= turnRate * delta;
     }
 
     if (this.inputManager.isKeyPressed(VALUE_D)) {
-      this.angularPosition -= turnRate * delta;
+      this.angularPosition += turnRate * delta;
     }
 
     this.angularPosition = ((this.angularPosition % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
@@ -65,8 +70,11 @@ class SpaceShip extends THREE.Object3D {
     pos.add(tangent);
 
     var segment = Math.floor(t * this.tubeSegments);
-    this.positionOnTube.up = this.tube.normals[segment];
+    this.positionOnTube.up = this.tube.binormals[segment];
     this.positionOnTube.lookAt(pos);
+
+    this.chaseCamera.lookAt(this.positionOnTube.position);
+    this.chaseCamera.rotation.z = this.angularPosition;
   }
 }
 
