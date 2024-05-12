@@ -72,8 +72,11 @@ class UFO extends THREE.Object3D {
 
     const material = new THREE.MeshStandardMaterial({
       color: 0x5c5c5c,
+      transparent: true,
+      opacity: 1,
     });
     const ufo = new THREE.Mesh(geometry, material);
+    ufo.userData = this;
     return ufo;
   }
 
@@ -105,9 +108,15 @@ class UFO extends THREE.Object3D {
 
   createLeg() {
     const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
-    const legMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
+    const legMaterial = new THREE.MeshStandardMaterial({ color: 0x444444,
+      transparent: true,
+      opacity: 1,
+     });
     const legTipGeometry = new THREE.SphereGeometry(0.1, 12, 12);
-    const legTipMaterial = new THREE.MeshStandardMaterial({ color: 0x4d4d4d });
+    const legTipMaterial = new THREE.MeshStandardMaterial({ color: 0x4d4d4d,
+      transparent: true,
+      opacity: 1,
+     });
 
     const leg = new THREE.Mesh(legGeometry, legMaterial);
     const legTip = new THREE.Mesh(legTipGeometry, legTipMaterial);
@@ -119,6 +128,8 @@ class UFO extends THREE.Object3D {
     legComplete.add(legTip);
 
     legComplete.translateX(legComplete.position.x > 0 ? 0.75 : -0.75);
+
+    legComplete.userData = this;
 
     return legComplete;
   }
