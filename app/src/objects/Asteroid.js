@@ -6,6 +6,9 @@ import { MTLLoader } from "../../libs/MTLLoader.js";
 class Asteroid extends THREE.Object3D {
     constructor(tubeGeometry, t, angularPosition) {
         super();
+
+        this.damage = 10;
+        this.collided = false;
     
         var materialLoader = new MTLLoader();
         var objectLoader = new OBJLoader();
@@ -22,6 +25,8 @@ class Asteroid extends THREE.Object3D {
                 object.translateY(2.8);
                 this.orientationNode.add(object);
                 this.positionOnTube.add(this.orientationNode);
+                this.boundingBox = new THREE.Box3().setFromObject(this);
+                this.parent.showBoundingBox(this)
             }.bind(this));
         }.bind(this));
 

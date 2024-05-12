@@ -19,6 +19,7 @@ class MyScene extends THREE.Scene {
     this.travelTime = 40;
     this.velocity = 1 / this.travelTime;
     this.t = 0;
+    this.score = 0;
 
     this.clock = new THREE.Clock();
     this.ufoClock = new THREE.Clock();
@@ -39,6 +40,7 @@ class MyScene extends THREE.Scene {
 
     this.tube = new SpaceTube();
     this.spaceShip = new SpaceShip(this.tube.getGeometry());
+    this.spaceShip.boundingBox = new THREE.Box3().setFromObject(this.spaceShip);
 
     this.cameraManager = new CameraManager(
       this,
@@ -68,6 +70,7 @@ class MyScene extends THREE.Scene {
       alien.boundingBox = new THREE.Box3().setFromObject(alien);
       this.objects.push(alien);
       this.add(alien);
+      this.showBoundingBox(alien);
     }
   }
 
@@ -79,6 +82,7 @@ class MyScene extends THREE.Scene {
       robot.boundingBox = new THREE.Box3().setFromObject(robot);
       this.objects.push(robot);
       this.add(robot);
+      this.showBoundingBox(robot);
     }
   }
 
@@ -91,6 +95,7 @@ class MyScene extends THREE.Scene {
       ufo.boundingBox = new THREE.Box3().setFromObject(ufo);
       this.objects.push(ufo);
       this.add(ufo);
+      this.showBoundingBox(ufo);
     }
   }
 
@@ -106,6 +111,7 @@ class MyScene extends THREE.Scene {
       fence.boundingBox = new THREE.Box3().setFromObject(fence);
       this.objects.push(fence);
       this.add(fence);
+      this.showBoundingBox(fence);
     }
   }
 
@@ -117,6 +123,7 @@ class MyScene extends THREE.Scene {
       asteroid.boundingBox = new THREE.Box3().setFromObject(asteroid);
       this.objects.push(asteroid);
       this.add(asteroid);
+      this.showBoundingBox(asteroid); // Asegúrate que se llama esto correctamente
     }
   }
 
@@ -128,6 +135,7 @@ class MyScene extends THREE.Scene {
       shield.boundingBox = new THREE.Box3().setFromObject(shield);
       this.objects.push(shield);
       this.add(shield);
+      this.showBoundingBox(shield);
     }
   }
 
@@ -168,9 +176,11 @@ class MyScene extends THREE.Scene {
     if (this.t > 1) {
       this.t -= 1;
       this.velocity *= 1.1;
+      this.resetCollisionFlags();
     }
 
     this.spaceShip.update(this.t, delta);
+    this.spaceShip.boundingBox.setFromObject(this.spaceShip);
 
     this.projectiles.forEach((entry, index) => {
       const { projectile, target, speed } = entry;
@@ -178,6 +188,12 @@ class MyScene extends THREE.Scene {
       if (projectile.position.distanceTo(target) < 0.5) {
         this.remove(projectile);
         this.projectiles.splice(index, 1);
+      }
+    });
+
+    this.objects.forEach((object) => {
+      if (this.spaceShip.boundingBox.intersectsBox(object.boundingBox)) {
+        this.handleCollision(object);
       }
     });
 
@@ -204,25 +220,32 @@ class MyScene extends THREE.Scene {
     requestAnimationFrame(() => this.update());
   }
 
+  resetCollisionFlags() {
+    this.objects.forEach((object) => {
+      object.collided = false;
+    });
+  }
+
   onDocumentMouseDown(event) {
     event.preventDefault();
-  
-    var raycaster = new THREE.Raycaster();  // Crear una nueva instancia aquí
+
+    var raycaster = new THREE.Raycaster(); // Crear una nueva instancia aquí
     var mouse = new THREE.Vector2(
       (event.clientX / window.innerWidth) * 2 - 1,
       -(event.clientY / window.innerHeight) * 2 + 1
     );
-  
+
     raycaster.setFromCamera(mouse, this.cameraManager.getCurrentCamera());
-  
+
     var intersects = raycaster.intersectObjects(this.ufos, true);
-  
+
     if (intersects.length > 0 && intersects[0].object.userData) {
       let selectedUFO = intersects[0].object;
       let realPosition = selectedUFO.userData.positionOnTube.position.clone();
-      let distance = realPosition.distanceTo(this.spaceShip.getFrontPosition())
-  
-      if (distance <= 100) { // Limit the shooting range
+      let distance = realPosition.distanceTo(this.spaceShip.getFrontPosition());
+
+      if (distance <= 100) {
+        // Limit the shooting range
         this.handleUFOHit(selectedUFO, realPosition);
       }
     }
@@ -236,27 +259,53 @@ class MyScene extends THREE.Scene {
     this.add(projectile);
   }
 
-createProjectile(position) {
+  createProjectile(position) {
     const geometry = new THREE.SphereGeometry(0.5, 32, 32);
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     const projectile = new THREE.Mesh(geometry, material);
     projectile.position.copy(position);
     return projectile;
+  }
+
+  startBlinking(mesh) {
+    let elapsed = 0;
+    const originalOpacity = mesh.material.opacity;
+    const blinkInterval = setInterval(() => {
+      mesh.material.opacity = mesh.material.opacity === 0.5 ? 1 : 0.5;
+      this.renderer.render(this, this.cameraManager.getCurrentCamera());
+      elapsed += 100;
+      if (elapsed >= 2000) {
+        clearInterval(blinkInterval);
+        mesh.material.opacity = originalOpacity;
+      }
+    }, 500);
+  }
+
+  handleCollision(object) {
+    if (!object.collided) {
+        if (object instanceof Alien) {
+            this.score += object.points;
+            console.log(`Puntuación aumentada, nuevo score: ${this.score}`);
+            object.collided = true;  // Marca el objeto como colisionado
+        } else if (object instanceof Asteroid) {
+            if (!object.collided) {
+                this.score = Math.max(0, this.score - object.damage);
+                console.log(`Puntuación disminuida, nuevo score: ${this.score}`);
+                object.collided = true;  // Marca el objeto como colisionado
+            }
+        }
+        this.updateScore();
+    }
 }
 
-startBlinking(mesh) {
-  let elapsed = 0;
-  const originalOpacity = mesh.material.opacity;
-  const blinkInterval = setInterval(() => {
-    mesh.material.opacity = mesh.material.opacity === 0.5 ? 1 : 0.5;
-    this.renderer.render(this, this.cameraManager.getCurrentCamera());
-    elapsed += 100;
-    if (elapsed >= 2000) {
-      clearInterval(blinkInterval);
-      mesh.material.opacity = originalOpacity;
-    }
-  }, 100);
-}
+  showBoundingBox(object) {
+    const boxHelper = new THREE.BoxHelper(object, 0xffff00);
+    this.add(boxHelper);
+  }
+
+  updateScore() {
+    document.getElementById("score").textContent = this.score;
+  }
 }
 
 $(function () {
@@ -270,7 +319,9 @@ $(function () {
   window.addEventListener("keydown", (event) => scene.onKeyDown(event));
 
   // Se añade el listener del ratón
-  document.addEventListener("mousedown", (event) => scene.onDocumentMouseDown(event));
+  document.addEventListener("mousedown", (event) =>
+    scene.onDocumentMouseDown(event)
+  );
 
   // Finalmente, realizamos el primer renderizado.
   scene.update();

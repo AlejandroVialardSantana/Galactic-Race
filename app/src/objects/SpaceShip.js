@@ -34,7 +34,6 @@ class SpaceShip extends THREE.Object3D {
             object.translateY(2.5); // Asegúrate de que esta transformación coloca el frente correctamente
             this.orientationNode.add(object);
             this.positionOnTube.add(this.orientationNode);
-            this.boundingBox = new THREE.Box3().setFromObject(this.positionOnTube);
         });
     });
 

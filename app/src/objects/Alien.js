@@ -4,6 +4,9 @@ class Alien extends THREE.Object3D {
   constructor(tubeGeometry, t, angularPosition) {
     super();
 
+    this.points = 100;
+    this.collided = false;
+
     this.material = new THREE.MeshPhongMaterial({ color: 0xcf0000 });
     this.figure = this.createAlien();
     this.figure.position.set(0, 2.7, 0);
@@ -19,6 +22,8 @@ class Alien extends THREE.Object3D {
     this.add(this.positionOnTube);
 
     this.positionateOnTube(tubeGeometry, t);
+  
+    this.positionOnTube.userData = this;
   }
 
   createAlien() {
