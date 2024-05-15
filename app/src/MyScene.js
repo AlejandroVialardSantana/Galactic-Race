@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import { TrackballControls } from "../libs/TrackballControls.js";
-import { GUI } from "../libs/dat.gui.module.js";
+import * as TWEEN from "../../libs/tween.esm.js";
 
 import { SpaceTube } from "./objects/SpaceTube.js";
 import { SpaceShip } from "./objects/SpaceShip.js";
@@ -60,6 +59,8 @@ class MyScene extends THREE.Scene {
 
     this.add(this.tube.getMesh());
     this.add(this.spaceShip);
+
+    this.initRobotAnimations();
   }
 
   addAliens(numAliens) {
@@ -191,6 +192,8 @@ class MyScene extends THREE.Scene {
       }
     });
 
+    TWEEN.update();
+
     this.objects.forEach((object) => {
       if (this.spaceShip.boundingBox.intersectsBox(object.boundingBox)) {
         this.handleCollision(object);
@@ -257,6 +260,8 @@ class MyScene extends THREE.Scene {
     const projectile = this.createProjectile(shipFrontPosition);
     this.projectiles.push({ projectile, target: realPosition, speed: 10 });
     this.add(projectile);
+    this.score += 50;
+    this.showMessage("UFO HIT");
   }
 
   createProjectile(position) {
@@ -283,20 +288,20 @@ class MyScene extends THREE.Scene {
 
   handleCollision(object) {
     if (!object.collided) {
-        if (object instanceof Alien) {
-            this.score += object.points;
-            console.log(`Puntuación aumentada, nuevo score: ${this.score}`);
-            object.collided = true;  // Marca el objeto como colisionado
-        } else if (object instanceof Asteroid) {
-            if (!object.collided) {
-                this.score = Math.max(0, this.score - object.damage);
-                console.log(`Puntuación disminuida, nuevo score: ${this.score}`);
-                object.collided = true;  // Marca el objeto como colisionado
-            }
+      if (object instanceof Alien) {
+        this.score += object.points;
+        console.log(`Puntuación aumentada, nuevo score: ${this.score}`);
+        object.collided = true; // Marca el objeto como colisionado
+      } else if (object instanceof Asteroid) {
+        if (!object.collided) {
+          this.score = Math.max(0, this.score - object.damage);
+          console.log(`Puntuación disminuida, nuevo score: ${this.score}`);
+          object.collided = true; // Marca el objeto como colisionado
         }
-        this.updateScore();
+      }
+      this.updateScore();
     }
-}
+  }
 
   showBoundingBox(object) {
     const boxHelper = new THREE.BoxHelper(object, 0xffff00);
@@ -305,6 +310,24 @@ class MyScene extends THREE.Scene {
 
   updateScore() {
     document.getElementById("score").textContent = this.score;
+  }
+
+  showMessage(message) {
+    const messageElement = document.getElementById("message");
+    messageElement.textContent = message;
+
+    setTimeout(() => {
+      messageElement.textContent = "";
+    }, 2000);
+  }
+
+  initRobotAnimations() {
+    this.objects
+      .filter((object) => object instanceof Robot)
+      .forEach((robot) => {
+        robot.animateBodyRotation(2000);
+        robot.animateArmLift(1000);
+      });
   }
 }
 

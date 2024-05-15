@@ -13,7 +13,7 @@ class SpaceShip extends THREE.Object3D {
     this.angularPosition = Math.PI;
     const aspectRatio = window.innerWidth / window.innerHeight;
     this.chaseCamera = new THREE.PerspectiveCamera(100, aspectRatio, 0.1, 500);
-    this.chaseCamera.position.set(0, 5, -10);
+    this.chaseCamera.position.set(0, 5, 10);
 
     this.positionOnTube = new THREE.Object3D();
     this.orientationNode = new THREE.Object3D();
@@ -32,12 +32,12 @@ class SpaceShip extends THREE.Object3D {
             object.scale.set(0.2, 0.2, 0.2);
             object.rotateY(Math.PI);
             object.translateY(2.5); // Asegúrate de que esta transformación coloca el frente correctamente
+            object.add(this.chaseCamera);
             this.orientationNode.add(object);
             this.positionOnTube.add(this.orientationNode);
         });
     });
 
-    this.orientationNode.add(this.chaseCamera);
     this.add(this.positionOnTube);
 
     // Añadir un nodo que especificamente apunta al frente
@@ -72,8 +72,6 @@ class SpaceShip extends THREE.Object3D {
     var segment = Math.floor(t * this.tubeSegments);
     this.positionOnTube.up = this.tube.binormals[segment];
     this.positionOnTube.lookAt(pos);
-
-    this.chaseCamera.lookAt(pos);
 
     this.positionOnTube.updateMatrixWorld(true);
   }

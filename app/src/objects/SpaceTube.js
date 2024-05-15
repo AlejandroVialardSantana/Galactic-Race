@@ -6,7 +6,12 @@ export class SpaceTube {
     const path = new THREE.CatmullRomCurve3(points, true);
     const tubeGeometry = new THREE.TubeGeometry(path, 200, 2, 20, true);
 
-    const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const material = new THREE.MeshPhysicalMaterial({
+      color: 0xff0000,
+      roughness: 1,
+      clearcoat: 0.2, 
+    });
+
     this.mesh = new THREE.Mesh(tubeGeometry, material);
   }
 

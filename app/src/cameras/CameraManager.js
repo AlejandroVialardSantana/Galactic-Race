@@ -13,7 +13,7 @@ class CameraManager {
 
         // Cámara general
         this.generalCamera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1050);
-        this.generalCamera.position.set(0, 70, 70);
+        this.generalCamera.position.set(0, 70, 90);
         this.generalCamera.lookAt(new THREE.Vector3(0, 0, 0));
         this.scene.add(this.generalCamera);
 
