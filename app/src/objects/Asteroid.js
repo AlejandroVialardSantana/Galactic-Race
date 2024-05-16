@@ -26,7 +26,6 @@ class Asteroid extends THREE.Object3D {
                 this.orientationNode.add(object);
                 this.positionOnTube.add(this.orientationNode);
                 this.boundingBox = new THREE.Box3().setFromObject(this);
-                this.parent.showBoundingBox(this)
             }.bind(this));
         }.bind(this));
 

@@ -1,5 +1,4 @@
 import * as THREE from "three";
-
 import { CSG } from "../../libs/CSG-v2.js";
 import * as TWEEN from "../../libs/tween.esm.js";
 
@@ -8,6 +7,7 @@ class Robot extends THREE.Object3D {
     super();
 
     this.robot = new THREE.Object3D();
+    this.hasFired = false;
 
     const base = this.createBase();
     const wheels = this.createWheels();
@@ -25,11 +25,11 @@ class Robot extends THREE.Object3D {
 
     this.arm.position.set(-0.05, 0, -0.85);
     this.armNode.position.set(0, 0.8, 0);
-    this.armNode.add(this.arm)
-    
+    this.armNode.add(this.arm);
+
     this.body.add(backBone, top, neck, head, eye, this.armNode);
     this.body.rotateY(Math.PI / 2);
-    
+
     base.position.set(0, 0.2, 0);
     backBone.position.set(0, 0.44, 0);
     eye.position.set(0, 1.3, 0.15);
@@ -37,10 +37,10 @@ class Robot extends THREE.Object3D {
 
     this.robot.add(base);
     this.robot.add(wheels);
-    this.robot.add(this.body)
+    this.robot.add(this.body);
 
     this.robot.position.set(0, 2.1, 0);
-    this.robot.rotateY(Math.PI);
+    this.robot.rotateY(-Math.PI / 2);
 
     this.angularPosition = angularPosition;
 
@@ -58,7 +58,6 @@ class Robot extends THREE.Object3D {
     const geometry = new THREE.CylinderGeometry(0.3, 0.5, 0.3, 20);
     const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
     const base = new THREE.Mesh(geometry, material);
-
     return base;
   }
 
@@ -92,13 +91,11 @@ class Robot extends THREE.Object3D {
     const geometry = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 20);
     const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
     const backBone = new THREE.Mesh(geometry, material);
-
     return backBone;
   }
 
   createTop() {
     const shape = new THREE.Shape();
-
     shape.moveTo(0, 0.7);
     shape.lineTo(0.1, 0.7);
     shape.quadraticCurveTo(0.1, 0.8, 0.3, 0.8);
@@ -119,20 +116,15 @@ class Robot extends THREE.Object3D {
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-
     const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
-
     const top = new THREE.Mesh(geometry, material);
-
     top.scale.set(0.8, 0.8, 0.8);
     top.position.set(0, 0.08, 0);
-
     return top;
   }
 
   createHead() {
     const shape = new THREE.Shape();
-
     shape.moveTo(0, 1);
     shape.lineTo(0.15, 1);
     shape.bezierCurveTo(0.25, 1.1, 0.25, 1.4, 0.15, 1.4);
@@ -148,15 +140,11 @@ class Robot extends THREE.Object3D {
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-
     const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
-
     const head = new THREE.Mesh(geometry, material);
-
     head.scale.set(0.6, 0.6, 0.6);
     head.rotateY(-Math.PI / 2);
     head.position.set(0, 0.56, 0);
-
     return head;
   }
 
@@ -172,7 +160,6 @@ class Robot extends THREE.Object3D {
     const neck = new THREE.Object3D();
     neck.add(neckStick);
     neck.add(neckStick2);
-
     return neck;
   }
 
@@ -183,7 +170,9 @@ class Robot extends THREE.Object3D {
     const arm2 = arm.clone();
 
     const shoulderGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.15, 20);
-    const shoulderMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    const shoulderMaterial = new THREE.MeshStandardMaterial({
+      color: 0x000000,
+    });
     const shoulder = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
 
     shoulder.rotateZ(Math.PI / 2);
@@ -212,7 +201,6 @@ class Robot extends THREE.Object3D {
       opacity: 0.5,
     });
     const eye = new THREE.Mesh(geometry, material);
-
     return eye;
   }
 
@@ -231,24 +219,32 @@ class Robot extends THREE.Object3D {
     this.orientationNode.rotation.z = this.angularPosition;
   }
 
-  animateBodyRotation(duration) {
-    const targetRotation = { y: Math.PI * 1.5 };
+  animateBodyRotation(targetAngle, duration) {
+    const currentAngle = this.body.rotation.y;
+    const angleDifference = targetAngle - currentAngle;
+
     new TWEEN.Tween(this.body.rotation)
-      .to(targetRotation, duration)
+      .to({ y: Math.PI * 1.5 }, duration)
       .easing(TWEEN.Easing.Quadratic.InOut)
-      .repeat(Infinity)
-      .yoyo(true)
       .start();
   }
 
-  animateArmLift(duration) {
-    const targetRotation = { x: -Math.PI / 2 };
+  animateArmLift(lift, duration) {
+    const targetRotation = lift ? -Math.PI / 2 : 0;
+
     new TWEEN.Tween(this.armNode.rotation)
-      .to(targetRotation, duration)
+      .to({ x: targetRotation }, duration)
       .easing(TWEEN.Easing.Quadratic.InOut)
-      .repeat(Infinity)
-      .yoyo(true)
       .start();
+  }
+
+  resetRobot(duration) {
+    new TWEEN.Tween(this.body.rotation)
+      .to({ y: 0 }, duration)
+      .easing(TWEEN.Easing.Quadratic.InOut)
+      .start();
+
+    this.animateArmLift(false, duration);
   }
 }
 

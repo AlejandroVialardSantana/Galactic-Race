@@ -27,6 +27,7 @@ class MyScene extends THREE.Scene {
     this.objects = [];
     this.ufos = [];
     this.projectiles = [];
+    this.robotProjectiles = []; // Array separado para proyectiles de robots
 
     this.renderer = this.createRenderer(myCanvas);
 
@@ -60,7 +61,8 @@ class MyScene extends THREE.Scene {
     this.add(this.tube.getMesh());
     this.add(this.spaceShip);
 
-    this.initRobotAnimations();
+    // Vincular métodos
+    this.resetRobot = this.resetRobot.bind(this);
   }
 
   addAliens(numAliens) {
@@ -178,11 +180,17 @@ class MyScene extends THREE.Scene {
       this.t -= 1;
       this.velocity *= 1.1;
       this.resetCollisionFlags();
+      
+      // Resetear la bandera hasFired de todos los robots al completar una vuelta
+      this.objects.filter((object) => object instanceof Robot).forEach((robot) => {
+        robot.hasFired = false;
+      });
     }
 
     this.spaceShip.update(this.t, delta);
     this.spaceShip.boundingBox.setFromObject(this.spaceShip);
 
+    // Actualizar proyectiles de la nave
     this.projectiles.forEach((entry, index) => {
       const { projectile, target, speed } = entry;
       projectile.position.lerp(target, speed * proyectileDelta);
@@ -192,7 +200,18 @@ class MyScene extends THREE.Scene {
       }
     });
 
+    // Actualizar proyectiles de los robots
+    this.robotProjectiles.forEach((projectile, index) => {
+      projectile.position.add(projectile.userData.velocity.clone().multiplyScalar(proyectileDelta));
+      if (projectile.position.distanceTo(this.spaceShip.positionOnTube.position) < 0.5 || projectile.position.length() > 500) {
+        this.remove(projectile);
+        this.robotProjectiles.splice(index, 1);
+      }
+    });
+
     TWEEN.update();
+
+    this.checkForNearbyRobots();
 
     this.objects.forEach((object) => {
       if (this.spaceShip.boundingBox.intersectsBox(object.boundingBox)) {
@@ -290,12 +309,10 @@ class MyScene extends THREE.Scene {
     if (!object.collided) {
       if (object instanceof Alien) {
         this.score += object.points;
-        console.log(`Puntuación aumentada, nuevo score: ${this.score}`);
         object.collided = true; // Marca el objeto como colisionado
       } else if (object instanceof Asteroid) {
         if (!object.collided) {
           this.score = Math.max(0, this.score - object.damage);
-          console.log(`Puntuación disminuida, nuevo score: ${this.score}`);
           object.collided = true; // Marca el objeto como colisionado
         }
       }
@@ -321,13 +338,73 @@ class MyScene extends THREE.Scene {
     }, 2000);
   }
 
-  initRobotAnimations() {
+  checkForNearbyRobots() {
+    const detectionRange = 20; // Rango de detección en unidades de THREE.js
+
     this.objects
-      .filter((object) => object instanceof Robot)
-      .forEach((robot) => {
-        robot.animateBodyRotation(2000);
-        robot.animateArmLift(1000);
+      .filter(object => object instanceof Robot)
+      .forEach(robot => {
+        const robotPosition = robot.positionOnTube.position; // Asegúrate de que esto sea THREE.Vector3
+        const shipPosition = this.spaceShip.positionOnTube.position; // Igual aquí
+
+        if (robotPosition && shipPosition && robotPosition.distanceTo(shipPosition) < detectionRange && !robot.hasFired) {
+          console.log("Robot detectado, disparando...");
+          robot.hasFired = true; // Asegúrate de resetear este flag en algún momento
+          this.triggerRobotAttack(robot);
+        }
       });
+  }
+
+  triggerRobotAttack(robot) {
+    // Obtener la posición del robot y la nave
+    const robotPos = robot.position.clone();
+    const shipPos = this.spaceShip.positionOnTube.position.clone();
+
+    // Calcular el vector hacia la nave desde el robot
+    const directionToShip = shipPos.sub(robotPos).normalize();
+
+    // Calcular el ángulo en el plano XY (asumiendo Y hacia arriba)
+    const targetAngle = Math.atan2(directionToShip.x, directionToShip.z);
+
+    // Orientar el robot hacia la nave
+    robot.animateBodyRotation(targetAngle, 400);  // Ajusta la duración según necesites
+
+    // Levantar el brazo y preparar disparo
+    robot.animateArmLift(true, 400);
+
+    setTimeout(() => {
+      this.fireProjectileFromRobot(robot);
+    }, 400);  // Espera hasta que el brazo esté levantado
+  }
+
+  fireProjectileFromRobot(robot) {
+    // Obtener la posición del cañón del robot
+    const cannonWorldPosition = new THREE.Vector3();
+    robot.arm.getWorldPosition(cannonWorldPosition);
+    
+    // Crear el proyectil en la posición del cañón
+    const projectile = this.createProjectile(cannonWorldPosition);
+    
+    // Calcular la dirección del disparo (hacia la nave)
+    const shipPos = this.spaceShip.positionOnTube.position.clone();
+    const direction = new THREE.Vector3().subVectors(shipPos, cannonWorldPosition).normalize();
+    
+    // Establecer la velocidad del proyectil en la dirección calculada
+    const speed = 30;
+    projectile.userData.velocity = direction.multiplyScalar(speed);
+    
+    this.robotProjectiles.push(projectile); // Usar el array separado para proyectiles de robots
+    this.add(projectile);
+
+    setTimeout(() => {
+      this.resetRobot(robot, 1000); // Resetear el robot después de 1 segundo
+      robot.hasFired = false; // Permitir que el robot vuelva a disparar
+    }, 3000); // Ajustar este tiempo según la velocidad del proyectil y la distancia
+  }
+
+  resetRobot(robot, duration) {
+    console.log("Resetting robot animation to initial state.");
+    robot.resetRobot(duration);
   }
 }
 
@@ -335,7 +412,7 @@ $(function () {
   // Se instancia la escena pasándole el div que se ha creado en el HTML
   var scene = new MyScene("#WebGL-output");
 
-  // Se añaden los listener de la aplciación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
+  // Se añaden los listener de la aplicación. En este caso, el que va a comprobar cuándo se modifica el tamaño de la ventana de la aplicación.
   window.addEventListener("resize", () => scene.onWindowResize());
 
   // Se añade el listener del teclado
