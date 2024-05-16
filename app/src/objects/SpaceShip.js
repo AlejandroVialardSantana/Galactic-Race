@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OBJLoader } from "../../libs/OBJLoader.js";
 import { MTLLoader } from "../../libs/MTLLoader.js";
 import { VALUE_A, VALUE_D } from "../../libs/keycode.esm.js";
-import { InputManager } from "../input/InputManager.js";
+import { InputManager } from "../managers/InputManager.js";
 
 class SpaceShip extends THREE.Object3D {
   constructor(tubeGeometry) {
