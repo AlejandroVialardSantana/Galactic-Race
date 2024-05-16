@@ -33,9 +33,12 @@ class MyScene extends THREE.Scene {
     this.addGameObjects();
     this.bindMethods();
     this.initEventListeners();
+
+    this.addSpaceBackground();
   }
 
   initScene(myCanvas) {
+    // Configuración inicial de la escena
     this.travelTime = config.spaceship.travelTime;
     this.velocity = 1 / this.travelTime;
     this.t = 0;
@@ -46,6 +49,7 @@ class MyScene extends THREE.Scene {
     this.objects = [];
     this.ufos = [];
 
+    // Renderizador y luces
     this.renderer = this.createRenderer(myCanvas);
     this.createLights();
     this.axis = new THREE.AxesHelper(6);
@@ -55,10 +59,44 @@ class MyScene extends THREE.Scene {
     this.spaceShip = new SpaceShip(this.tube.getGeometry());
     this.spaceShip.boundingBox = new THREE.Box3().setFromObject(this.spaceShip);
     this.cameraManager = new CameraManager(this, this.renderer, this.spaceShip.chaseCamera);
-    this.cameraHelper = new THREE.CameraHelper(this.spaceShip.chaseCamera);
-    this.add(this.cameraHelper);
     this.add(this.tube.getMesh());
     this.add(this.spaceShip);
+  }
+
+  createRenderer(myCanvas) {
+    let renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(new THREE.Color(config.scene.backgroundColor));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    $(myCanvas).append(renderer.domElement);
+    return renderer;
+  }
+
+  createLights() {
+    // Luz ambiental
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    this.add(ambientLight);
+
+    // Luz direccional
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(-100, 100, 100);
+    directionalLight.castShadow = true;
+    this.add(directionalLight);
+
+    // Luz hemisférica
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
+    hemiLight.color.setHSL(0.6, 1, 0.6);
+    hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+    hemiLight.position.set(0, 50, 0);
+    this.add(hemiLight);
+  }
+
+  addSpaceBackground() {
+    const loader = new THREE.TextureLoader();
+    loader.load('../assets/spacial-background.jpg', (texture) => {
+      const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+      rt.fromEquirectangularTexture(this.renderer, texture);
+      this.background = rt.texture;
+    });
   }
 
   bindMethods() {
@@ -72,23 +110,6 @@ class MyScene extends THREE.Scene {
     this.objectManager.addGameObjects(ElectricFence, 5);
     this.objectManager.addGameObjects(Asteroid, 5);
     this.objectManager.addGameObjects(Shield, 5);
-  }
-
-  createRenderer(myCanvas) {
-    let renderer = new THREE.WebGLRenderer();
-    renderer.setClearColor(new THREE.Color(config.scene.backgroundColor));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    $(myCanvas).append(renderer.domElement);
-    return renderer;
-  }
-
-  createLights() {
-    const ambientLight = new THREE.AmbientLight(config.lights.ambient.color, config.lights.ambient.intensity);
-    this.add(ambientLight);
-
-    const pointLight = new THREE.PointLight(config.lights.point.color, config.lights.point.intensity);
-    pointLight.position.set(config.lights.point.position.x, config.lights.point.position.y, config.lights.point.position.z);
-    this.add(pointLight);
   }
 
   initEventListeners() {

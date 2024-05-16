@@ -1,5 +1,4 @@
 import * as THREE from "three";
-
 import { OBJLoader } from "../../libs/OBJLoader.js";
 import { MTLLoader } from "../../libs/MTLLoader.js";
 import { VALUE_A, VALUE_D } from "../../libs/keycode.esm.js";
@@ -27,26 +26,45 @@ class SpaceShip extends THREE.Object3D {
     var objectLoader = new OBJLoader();
 
     materialLoader.load("../models/D5SpaceShip/d5class.mtl", (materials) => {
-        objectLoader.setMaterials(materials);
-        objectLoader.load("../models/D5SpaceShip/d5class.obj", (object) => {
-            object.scale.set(0.2, 0.2, 0.2);
-            object.rotateY(Math.PI);
-            object.translateY(2.5); // Asegúrate de que esta transformación coloca el frente correctamente
-            object.add(this.chaseCamera);
-            this.orientationNode.add(object);
-            this.positionOnTube.add(this.orientationNode);
-        });
+      objectLoader.setMaterials(materials);
+      objectLoader.load("../models/D5SpaceShip/d5class.obj", (object) => {
+        object.scale.set(0.2, 0.2, 0.2);
+        object.rotateY(Math.PI);
+        object.translateY(2.5);
+        object.add(this.chaseCamera);
+        this.orientationNode.add(object);
+
+        // Añadir faros a la nave
+        const headlight1 = new THREE.SpotLight(0xffffff, 2, 100, Math.PI / 8, 0.5);
+        headlight1.position.set(0.3, 2.5, 2);
+        headlight1.target.position.set(0, 0, 10);
+        this.orientationNode.add(headlight1);
+        this.orientationNode.add(headlight1.target);
+
+        const headlight2 = new THREE.SpotLight(0xffffff, 2, 100, Math.PI / 8, 0.5);
+        headlight2.position.set(-0.3, 2.5, 2);
+        headlight2.target.position.set(0, 0, 10);
+        this.orientationNode.add(headlight2);
+        this.orientationNode.add(headlight2.target);
+
+        // TODO: Corregir la posición de la luz
+        const pointLight = new THREE.PointLight(0xffffff, 2, 100);
+        pointLight.position.set(0, 5, 0);
+        this.orientationNode.add(pointLight);
+
+        this.positionOnTube.add(this.orientationNode);
+      });
     });
 
     this.add(this.positionOnTube);
 
-    // Añadir un nodo que especificamente apunta al frente
+    // Añadir un nodo que específicamente apunta al frente
     this.frontNode = new THREE.Object3D();
     this.frontNode.scale.set(0.2, 0.2, 0.2);
     this.frontNode.rotateY(Math.PI);
     this.frontNode.translateY(2.5);
     this.orientationNode.add(this.frontNode);
-}
+  }
 
   update(t, delta) {
     const turnRate = 2 * Math.PI;
@@ -80,7 +98,7 @@ class SpaceShip extends THREE.Object3D {
     var frontPos = new THREE.Vector3();
     this.frontNode.getWorldPosition(frontPos);
     return frontPos;
-}
+  }
 }
 
 export { SpaceShip };
