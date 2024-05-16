@@ -32,7 +32,6 @@ class MyScene extends THREE.Scene {
 
     this.addGameObjects();
     this.bindMethods();
-    this.initEventListeners();
 
     this.addSpaceBackground();
   }
@@ -112,15 +111,9 @@ class MyScene extends THREE.Scene {
     this.objectManager.addGameObjects(Shield, 5);
   }
 
-  initEventListeners() {
-    window.addEventListener("resize", () => this.renderManager.onWindowResize());
-    window.addEventListener("keydown", (event) => this.onKeyDown(event));
-    document.addEventListener("mousedown", (event) => this.onDocumentMouseDown(event));
-  }
-
   onKeyDown(event) {
     if (event.key === "c") {
-      this.cameraManager.switchCamera(this.spaceShip.chaseCamera);
+      this.cameraManager.switchCamera();
     }
   }
 
