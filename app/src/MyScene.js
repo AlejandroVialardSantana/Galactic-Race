@@ -102,7 +102,7 @@ class MyScene extends THREE.Scene {
   }
 
   addGameObjects() {
-    this.objectManager.addGameObjects(Alien, 20);
+    this.objectManager.addAliens(5, 15, 30); // 5 oro, 15 plata, 30 bronce
     this.objectManager.addGameObjects(Robot, 7);
     this.objectManager.addGameObjects(UFO, 5, this.ufos);
     this.objectManager.addGameObjects(ElectricFence, 5);

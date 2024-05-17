@@ -58,7 +58,6 @@ class UFO extends THREE.Object3D {
   }
 
   createUFO() {
-
     const points = [
       new THREE.Vector2(0, 1),
       new THREE.Vector2(0.5, 1),
@@ -136,9 +135,9 @@ class UFO extends THREE.Object3D {
 
   addLights() {
     const lightColor = 0xffffff;
-    const intensity = 1;
-    const distance = 5;
-    const decay = 2;
+    const intensity = 6; // Aumenta la intensidad
+    const distance = 15; // Aumenta la distancia
+    const decay = 1; // Ajusta la decadencia para una iluminación más uniforme
 
     const lightPositions = [
       new THREE.Vector3(1, 2.2, 0),
@@ -148,9 +147,9 @@ class UFO extends THREE.Object3D {
     ];
 
     const greenLightColor = 0x00ff00;
-    const greenLightIntensity = 4.5;
-    const greenLightDistance = 2.5;
-    const greenLightDecay = 2;
+    const greenLightIntensity = 6; // Aumenta la intensidad
+    const greenLightDistance = 15; // Aumenta la distancia
+    const greenLightDecay = 1; // Ajusta la decadencia para una iluminación más uniforme
 
     const greenLightPositions = [
       new THREE.Vector3(1.5, -0.5, 0),
@@ -168,6 +167,9 @@ class UFO extends THREE.Object3D {
       );
       greenLight.position.copy(position);
       this.ufo.add(greenLight);
+
+      const greenLightHelper = new THREE.PointLightHelper(greenLight, 0.5);
+      this.ufo.add(greenLightHelper);
     });
 
     lightPositions.forEach((position) => {
@@ -179,6 +181,9 @@ class UFO extends THREE.Object3D {
       );
       light.position.set(position.x, position.y, position.z);
       this.ufo.add(light);
+    
+      const lightHelper = new THREE.PointLightHelper(light, 0.5);
+      this.ufo.add(lightHelper);
     });
   }
 

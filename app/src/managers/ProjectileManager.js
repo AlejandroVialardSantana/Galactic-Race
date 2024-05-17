@@ -29,7 +29,7 @@ class ProjectileManager {
     this.projectiles.forEach((entry, index) => {
       if (entry.isRobotProjectile) {
         entry.projectile.position.add(entry.velocity.clone().multiplyScalar(delta));
-        if (entry.projectile.position.distanceTo(this.scene.spaceShip.positionOnTube.position) < 0.5 || entry.projectile.position.length() > 20) {
+        if (entry.projectile.position.distanceTo(this.scene.spaceShip.positionOnTube.position) < 0.5 || entry.projectile.position.length() > 50) {
           this.scene.remove(entry.projectile);
           this.projectiles.splice(index, 1);
         }

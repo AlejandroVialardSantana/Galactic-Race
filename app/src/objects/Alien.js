@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
 class Alien extends THREE.Object3D {
-  constructor(tubeGeometry, t, angularPosition) {
+  constructor(tubeGeometry, t, angularPosition, material, points) {
     super();
 
-    this.points = 100;
+    this.points = points;
     this.collided = false;
 
-    this.material = new THREE.MeshPhongMaterial({ color: 0xcf0000 });
+    this.material = material;
     this.figure = this.createAlien();
     this.figure.position.set(0, 2.7, 0);
     this.figure.rotateY(Math.PI);
@@ -80,9 +80,7 @@ class Alien extends THREE.Object3D {
 
     const geometry = new THREE.LatheGeometry(points, 32);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x008000 });
-
-    const head = new THREE.Mesh(geometry, material);
+    const head = new THREE.Mesh(geometry, this.material);
 
     return head;
   }
@@ -106,11 +104,9 @@ class Alien extends THREE.Object3D {
   createNeck() {
     const geometry = new THREE.CylinderGeometry(0.05, 0.05, 0.1, 32);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x008000 });
+    const neck = new THREE.Mesh(geometry, this.material);
 
-    const cylinder = new THREE.Mesh(geometry, material);
-
-    return cylinder;
+    return neck;
   }
 
    createBody() {
@@ -125,9 +121,7 @@ class Alien extends THREE.Object3D {
 
     const geometry = new THREE.LatheGeometry(points, 32);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x008000 });
-
-    const body = new THREE.Mesh(geometry, material);
+    const body = new THREE.Mesh(geometry, this.material);
 
     return body;
   }
@@ -137,9 +131,7 @@ class Alien extends THREE.Object3D {
 
     const geometry = new THREE.SphereGeometry(0.05, 32, 32);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x008000 });
-
-    const sphere = new THREE.Mesh(geometry, material);
+    const sphere = new THREE.Mesh(geometry, this.material);
 
     sphere.scale.set(2.5, 2.5, 1.5);
 
@@ -154,10 +146,8 @@ class Alien extends THREE.Object3D {
     const geometry = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 32);
     const geometry2 = new THREE.TorusGeometry(0.02, 0.01, 16, 100);
 
-    const material = new THREE.MeshBasicMaterial({ color: 0x008000 });
-
-    const cylinder = new THREE.Mesh(geometry, material);
-    const torus = new THREE.Mesh(geometry2, material);
+    const cylinder = new THREE.Mesh(geometry, this.material);
+    const torus = new THREE.Mesh(geometry2, this.material);
 
     torus.position.set(0, 0.07, 0);
 
