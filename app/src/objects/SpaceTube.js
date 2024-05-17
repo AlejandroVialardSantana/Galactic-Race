@@ -10,18 +10,29 @@ export class SpaceTube {
     const texture = textureLoader.load('../../assets/1.jpg');
     const displacementMap = textureLoader.load('../../assets/2.jpg');
 
-    const material = new THREE.MeshPhongMaterial ( 
-      { color: 0xffffff ,
-      map: texture ,
-         displacementMap: displacementMap,
+    // Configurar la repetición de las texturas
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    displacementMap.wrapS = THREE.RepeatWrapping;
+    displacementMap.wrapT = THREE.RepeatWrapping;
+
+    // Ajustar la cantidad de repetición de las texturas
+    const repeatX = 50;
+    const repeatY = 7;
+
+    texture.repeat.set(repeatX, repeatY);
+    displacementMap.repeat.set(repeatX, repeatY);
+
+    const material = new THREE.MeshPhongMaterial({ 
+      color: 0xffffff,
+      map: texture,
+      displacementMap: displacementMap,
       displacementScale: 0.06,
       bumpMap: displacementMap,
       bumpScale: 0.04,
-       reflectivity:0, 
-       shininess :0
-      } 
-    
-    );
+      reflectivity: 0,
+      shininess: 0
+    });
 
     this.mesh = new THREE.Mesh(tubeGeometry, material);
   }

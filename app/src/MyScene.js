@@ -51,7 +51,6 @@ class MyScene extends THREE.Scene {
     // Renderizador y luces
     this.renderer = this.createRenderer(myCanvas);
     this.createLights();
-    this.axis = new THREE.AxesHelper(6);
     this.add(this.axis);
     this.spaceShipPosition = new THREE.Vector3();
     this.tube = new SpaceTube();
@@ -72,11 +71,11 @@ class MyScene extends THREE.Scene {
 
   createLights() {
     // Luz ambiental
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.add(ambientLight);
 
     // Luz direccional
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(-100, 100, 100);
     directionalLight.castShadow = true;
     this.add(directionalLight);
@@ -152,6 +151,10 @@ class MyScene extends THREE.Scene {
     this.objects.forEach((object) => {
       object.collided = false;
     });
+  }
+
+  onWindowResize() {
+    this.cameraManager.update();
   }
 
   onDocumentMouseDown(event) {

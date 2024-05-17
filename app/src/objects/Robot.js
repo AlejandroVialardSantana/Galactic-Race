@@ -9,14 +9,34 @@ class Robot extends THREE.Object3D {
     this.robot = new THREE.Object3D();
     this.hasFired = false;
 
-    const base = this.createBase();
-    const wheels = this.createWheels();
-    const backBone = this.createBackBone();
-    const top = this.createTop();
-    const neck = this.createNeck();
-    const head = this.createHead();
-    this.arm = this.createArm();
-    const eye = this.createEye();
+    const metalMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xc3c3c3,
+      metalness: 0.8,
+      roughness: 0.6,
+      reflectivity: 0.8, // Ajustar la reflectividad
+      clearcoat: 1, // Añadir un capa de acabado para un aspecto más brillante
+      clearcoatRoughness: 0.1,
+    });
+
+    const nonMetalMaterial = new THREE.MeshStandardMaterial({
+      color: 0x555555,
+      roughness: 0.8,
+    });
+
+    const eyeMaterial = new THREE.MeshStandardMaterial({
+      color: 0xff0000,
+      transparent: true,
+      opacity: 0.5,
+    });
+
+    const base = this.createBase(metalMaterial);
+    const wheels = this.createWheels(nonMetalMaterial);
+    const backBone = this.createBackBone(nonMetalMaterial);
+    const top = this.createTop(metalMaterial);
+    const neck = this.createNeck(nonMetalMaterial);
+    const head = this.createHead(metalMaterial);
+    this.arm = this.createArm(metalMaterial);
+    const eye = this.createEye(eyeMaterial);
 
     this.body = new THREE.Object3D();
     this.armNode = new THREE.Object3D();
@@ -33,7 +53,7 @@ class Robot extends THREE.Object3D {
     base.position.set(0, 0.2, 0);
     backBone.position.set(0, 0.44, 0);
     eye.position.set(0, 1.3, 0.15);
-    head.position.set(0, 0.55, 0); // Ajustamos la posición de la cabeza
+    head.position.set(0, 0.55, 0);
 
     this.robot.add(base);
     this.robot.add(wheels);
@@ -54,16 +74,14 @@ class Robot extends THREE.Object3D {
     this.positionateOnTube(tubeGeometry, t);
   }
 
-  createBase() {
+  createBase(material) {
     const geometry = new THREE.CylinderGeometry(0.3, 0.5, 0.3, 20);
-    const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
     const base = new THREE.Mesh(geometry, material);
     return base;
   }
 
-  createWheels() {
+  createWheels(material) {
     const geometry = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 20);
-    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
     const wheel = new THREE.Mesh(geometry, material);
     const wheel2 = wheel.clone();
     const wheel3 = wheel.clone();
@@ -87,14 +105,13 @@ class Robot extends THREE.Object3D {
     return wheels;
   }
 
-  createBackBone() {
+  createBackBone(material) {
     const geometry = new THREE.CylinderGeometry(0.06, 0.06, 0.25, 20);
-    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
     const backBone = new THREE.Mesh(geometry, material);
     return backBone;
   }
 
-  createTop() {
+  createTop(material) {
     const shape = new THREE.Shape();
     shape.moveTo(0, 0.7);
     shape.lineTo(0.1, 0.7);
@@ -116,14 +133,13 @@ class Robot extends THREE.Object3D {
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
     const top = new THREE.Mesh(geometry, material);
     top.scale.set(0.8, 0.8, 0.8);
     top.position.set(0, 0.08, 0);
     return top;
   }
 
-  createHead() {
+  createHead(material) {
     const shape = new THREE.Shape();
     shape.moveTo(0, 1);
     shape.lineTo(0.15, 1);
@@ -140,7 +156,6 @@ class Robot extends THREE.Object3D {
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-    const material = new THREE.MeshStandardMaterial({ color: 0xc3c3c3 });
     const head = new THREE.Mesh(geometry, material);
     head.scale.set(0.6, 0.6, 0.6);
     head.rotateY(-Math.PI / 2);
@@ -148,9 +163,8 @@ class Robot extends THREE.Object3D {
     return head;
   }
 
-  createNeck() {
+  createNeck(material) {
     const geometry = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 20);
-    const material = new THREE.MeshStandardMaterial({ color: 0x000000 });
     const neckStick = new THREE.Mesh(geometry, material);
     const neckStick2 = neckStick.clone();
 
@@ -163,16 +177,13 @@ class Robot extends THREE.Object3D {
     return neck;
   }
 
-  createArm() {
+  createArm(material) {
     const geometry = new THREE.CylinderGeometry(0.1, 0.1, 0.7, 20);
-    const material = new THREE.MeshStandardMaterial({ color: 0xffffff });
     const arm = new THREE.Mesh(geometry, material);
     const arm2 = arm.clone();
 
     const shoulderGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.15, 20);
-    const shoulderMaterial = new THREE.MeshStandardMaterial({
-      color: 0x000000,
-    });
+    const shoulderMaterial = material;
     const shoulder = new THREE.Mesh(shoulderGeometry, shoulderMaterial);
 
     shoulder.rotateZ(Math.PI / 2);
@@ -193,13 +204,8 @@ class Robot extends THREE.Object3D {
     return armGroup;
   }
 
-  createEye() {
+  createEye(material) {
     const geometry = new THREE.SphereGeometry(0.07, 20, 20);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-      transparent: true,
-      opacity: 0.5,
-    });
     const eye = new THREE.Mesh(geometry, material);
     return eye;
   }
