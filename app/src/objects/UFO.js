@@ -167,9 +167,6 @@ class UFO extends THREE.Object3D {
       );
       greenLight.position.copy(position);
       this.ufo.add(greenLight);
-
-      const greenLightHelper = new THREE.PointLightHelper(greenLight, 0.5);
-      this.ufo.add(greenLightHelper);
     });
 
     lightPositions.forEach((position) => {
@@ -181,9 +178,6 @@ class UFO extends THREE.Object3D {
       );
       light.position.set(position.x, position.y, position.z);
       this.ufo.add(light);
-    
-      const lightHelper = new THREE.PointLightHelper(light, 0.5);
-      this.ufo.add(lightHelper);
     });
   }
 

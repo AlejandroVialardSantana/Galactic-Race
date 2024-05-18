@@ -31,21 +31,24 @@ class SpaceShip extends THREE.Object3D {
         object.scale.set(0.2, 0.2, 0.2);
         object.rotateY(Math.PI);
         object.translateY(2.5);
+        object.castShadow = true;
+        object.receiveShadow = true;
         object.add(this.chaseCamera);
         this.orientationNode.add(object);
 
-        // Añadir faros a la nave
         const headlight1 = new THREE.SpotLight(0xEFCC00, 2, 100, Math.PI / 8, 0.5);
         headlight1.power = 200;
         headlight1.position.set(0.5, 2.5, 2);
         headlight1.target.position.set(0, 0, 10);
+        headlight1.castShadow = true;
         this.orientationNode.add(headlight1);
         this.orientationNode.add(headlight1.target);
 
-        const headlight2 = new THREE.SpotLight(0xEFCC00	, 2, 100, Math.PI / 8, 0.5);
+        const headlight2 = new THREE.SpotLight(0xEFCC00, 2, 100, Math.PI / 8, 0.5);
         headlight2.power = 200;
         headlight2.position.set(-0.5, 2.5, 2);
         headlight2.target.position.set(0, 0, 10);
+        headlight2.castShadow = true;
         this.orientationNode.add(headlight2);
         this.orientationNode.add(headlight2.target);
 

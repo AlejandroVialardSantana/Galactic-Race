@@ -62,9 +62,11 @@ class MyScene extends THREE.Scene {
   }
 
   createRenderer(myCanvas) {
-    let renderer = new THREE.WebGLRenderer();
+    let renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor(new THREE.Color(config.scene.backgroundColor));
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Mejor calidad de sombras
     $(myCanvas).append(renderer.domElement);
     return renderer;
   }
@@ -72,20 +74,29 @@ class MyScene extends THREE.Scene {
   createLights() {
     // Luz ambiental
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    this.add(ambientLight);
+    // this.add(ambientLight);
 
     // Luz direccional
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     directionalLight.position.set(-100, 100, 100);
     directionalLight.castShadow = true;
-    this.add(directionalLight);
+    directionalLight.shadow.mapSize.width = 2048; // Tamaño de mapa de sombras
+    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.camera.near = 0.1;
+    directionalLight.shadow.camera.far = 50;
+    directionalLight.shadow.camera.left = -50;
+    directionalLight.shadow.camera.right = 50;
+    directionalLight.shadow.camera.top = 50;
+    directionalLight.shadow.camera.bottom = -50;
+
+    //this.add(directionalLight);
 
     // Luz hemisférica
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
     hemiLight.color.setHSL(0.6, 1, 0.6);
     hemiLight.groundColor.setHSL(0.095, 1, 0.75);
     hemiLight.position.set(0, 50, 0);
-    this.add(hemiLight);
+    // this.add(hemiLight);
   }
 
   addSpaceBackground() {
@@ -106,7 +117,7 @@ class MyScene extends THREE.Scene {
     this.objectManager.addGameObjects(Robot, 7);
     this.objectManager.addGameObjects(UFO, 5, this.ufos);
     this.objectManager.addGameObjects(ElectricFence, 5);
-    this.objectManager.addGameObjects(Asteroid, 5);
+    this.objectManager.addGameObjects(Asteroid, 10);
     this.objectManager.addGameObjects(Shield, 5);
   }
 

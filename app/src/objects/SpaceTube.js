@@ -35,6 +35,8 @@ export class SpaceTube {
     });
 
     this.mesh = new THREE.Mesh(tubeGeometry, material);
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
   }
 
   createTubePath() {
