@@ -9,7 +9,10 @@ class SpaceShip extends THREE.Object3D {
     super();
     this.inputManager = new InputManager();
     this.canShoot = true;
+    this.isInvulnerable = false;
+    this.isDisabled = false;
     this.cooldownTimeout = null;
+    this.invulnerableTimeout = null;
     this.messageTimeout = null;
 
     this.angularPosition = Math.PI;
@@ -138,6 +141,7 @@ class SpaceShip extends THREE.Object3D {
 
   disableShooting() {
     this.canShoot = false;
+    this.isDisabled = true;
 
     const cooldownContainer = document.getElementById("cooldown-container");
     const cooldownBar = document.getElementById("cooldown-bar");
@@ -147,7 +151,7 @@ class SpaceShip extends THREE.Object3D {
     setTimeout(() => {
       cooldownBar.style.transition = 'width 7s linear';
       cooldownBar.style.width = '0%';
-    }, 0); 
+    }, 0);
 
     if (this.cooldownTimeout) {
       clearTimeout(this.cooldownTimeout);
@@ -155,30 +159,59 @@ class SpaceShip extends THREE.Object3D {
 
     this.cooldownTimeout = setTimeout(() => {
       this.canShoot = true;
+      this.isDisabled = false;
       cooldownContainer.style.display = 'none';
       this.cooldownTimeout = null;
     }, 7000);
 
+    this.showMessage("DISABLED", "#FF0000", 7000);
+  }
+
+  enableInvulnerability() {
+    this.isInvulnerable = true;
+
+    const invulnerableContainer = document.getElementById("invulnerable-container");
+    const invulnerableBar = document.getElementById("invulnerable-bar");
+    invulnerableContainer.style.display = 'block';
+    invulnerableBar.style.width = '100%';
+    invulnerableBar.style.transition = 'none';
+    setTimeout(() => {
+      invulnerableBar.style.transition = 'width 7s linear';
+      invulnerableBar.style.width = '0%';
+    }, 0);
+
+    if (this.invulnerableTimeout) {
+      clearTimeout(this.invulnerableTimeout);
+    }
+
+    this.invulnerableTimeout = setTimeout(() => {
+      this.isInvulnerable = false;
+      invulnerableContainer.style.display = 'none';
+      this.invulnerableTimeout = null;
+    }, 7000);
+
+    this.showMessage("INVULNERABLE", "#0000FF", 7000);
+  }
+
+  showMessage(message, color, duration) {
     const messageElement = document.getElementById("message");
     const messageContainer = document.getElementById("message-container");
-    messageElement.textContent = "DISABLED";
+    messageElement.textContent = message;
     messageContainer.style.display = 'block';
-    messageContainer.style.color = "#FF0000";
-    messageContainer.classList.add('blink');
+    messageContainer.style.color = color;
 
+    messageContainer.classList.add("blink");
 
     if (this.messageTimeout) {
       clearTimeout(this.messageTimeout);
     }
 
     this.messageTimeout = setTimeout(() => {
-      messageElement.style.display = 'none';
       messageContainer.style.display = 'none';
-      messageContainer.classList.remove('blink');
+      messageContainer.classList.remove("blink");
       this.messageTimeout = null;
-    }, 7000)
+    }, duration);
   }
 }
 
 export { SpaceShip };
-

@@ -2,7 +2,6 @@ import * as THREE from "three";
 import * as TWEEN from "../../libs/tween.esm.js";
 import { SpaceTube } from "./objects/SpaceTube.js";
 import { SpaceShip } from "./objects/SpaceShip.js";
-import { Alien } from "./objects/Alien.js";
 import { Shield } from "./objects/Shield.js";
 import { Asteroid } from "./objects/Asteroid.js";
 import { UFO } from "./objects/UFO.js";
@@ -118,11 +117,11 @@ class MyScene extends THREE.Scene {
 
   addGameObjects() {
     this.objectManager.addAliens(5, 15, 30);
-    this.objectManager.addGameObjects(Robot, 7);
+    this.objectManager.addGameObjects(Robot, 5);
     this.objectManager.addGameObjects(UFO, 5, this.ufos);
-    this.objectManager.addGameObjects(ElectricFence, 5);
+    this.objectManager.addGameObjects(ElectricFence, 7);
     this.objectManager.addGameObjects(Asteroid, 10);
-    this.objectManager.addGameObjects(Shield, 5);
+    this.objectManager.addGameObjects(Shield, 20);
   }
 
   onKeyDown(event) {
@@ -224,17 +223,23 @@ class MyScene extends THREE.Scene {
   showMessage(message, color = "#00FF00", duration = 2000) {
     const messageElement = document.getElementById("message");
     const messageContainer = document.getElementById("message-container");
+    
+    // Clear any existing message timeout
+    if (this.messageTimeout) {
+      clearTimeout(this.messageTimeout);
+      this.messageTimeout = null;
+    }
+
     messageElement.textContent = message;
-    messageElement.style.display = "block";
     messageContainer.style.display = "block";
     messageContainer.style.color = color;
 
     messageContainer.classList.add("blink");
 
-    setTimeout(() => {
-      messageElement.style.display = "none";
+    this.messageTimeout = setTimeout(() => {
       messageContainer.style.display = "none";
       messageContainer.classList.remove("blink");
+      this.messageTimeout = null;
     }, duration);
   }
 
@@ -306,7 +311,7 @@ class MyScene extends THREE.Scene {
   }
 
   handleSpaceShipHit() {
-    this.showMessage("WARNING", "#FF0000");
+    this.showMessage("WARNING", "#FF0000", 2000);
     this.spaceShip.blink();
   }
 }

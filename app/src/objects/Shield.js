@@ -8,9 +8,7 @@ class Shield extends THREE.Object3D {
     this.field = new THREE.Object3D();
 
     const base = this.createFieldBase();
-
     const rood = this.createRood();
-
     const rivets = this.createRivets();
 
     this.field.add(base);
@@ -35,8 +33,18 @@ class Shield extends THREE.Object3D {
 
   createFieldBase() {
     var shape = this.createShieldShape();
-    var baseMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    var detailMaterial = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+    var baseMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      metalness: 0.8,
+      roughness: 0.2,
+      reflectivity: 0.9,
+    });
+    var detailMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xcccccc,
+      metalness: 0.6,
+      roughness: 0.4,
+      reflectivity: 0.7,
+    });
 
     var base = new THREE.Mesh(
       new THREE.ExtrudeGeometry(shape, {
@@ -116,13 +124,17 @@ class Shield extends THREE.Object3D {
   createRood() {
     var boxGeometry1 = new THREE.BoxGeometry(1, 0.3, 0.8);
     var boxGeometry2 = new THREE.BoxGeometry(0.3, 1, 0.8);
-    var boxMaterial = new THREE.MeshPhongMaterial({ color: 0xcb3234 });
+    var boxMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0xcb3234,
+      metalness: 0.7,
+      roughness: 0.3,
+      reflectivity: 0.6,
+    });
 
     var boxVertical = new THREE.Mesh(boxGeometry1, boxMaterial);
     var boxHorizontal = new THREE.Mesh(boxGeometry2, boxMaterial);
 
     var csg = new CSG();
-
     csg.union([boxVertical, boxHorizontal]);
 
     var rood = csg.toMesh();
@@ -132,7 +144,12 @@ class Shield extends THREE.Object3D {
 
   createRivets() {
     var rivetGeometry = new THREE.SphereGeometry(0.04, 32, 32);
-    var rivetMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    var rivetMaterial = new THREE.MeshPhysicalMaterial({
+      color: 0x000000,
+      metalness: 0.9,
+      roughness: 0.1,
+      reflectivity: 0.5,
+    });
 
     var rivet1 = new THREE.Mesh(rivetGeometry, rivetMaterial);
     rivet1.position.set(0.94, 0.72, 0.25);
