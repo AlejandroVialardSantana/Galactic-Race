@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body {
+    margin: 0;
+    overflow: hidden; 
+    font-family: 'Orbitron', sans-serif;
+}
+
+#WebGL-output {
+    width: 100vw;
+    height: 100vh;
+    background: black;
+}
+
+#score-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #00FF00;
+    font-size: 20px;
+    text-shadow: 0 0 10px #00FF00;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #00FF00;
+}
+
+#message-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #00FF00;
+    font-size: 30px;
+    text-shadow: 0 0 10px #00FF00; 
+    background: rgba(0, 0, 0, 0.5); 
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #00FF00;
+    display: none;
+    z-index: 10;
+    width: 300px;
+    text-align: center;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+#message-container.blink span {
+    animation: blink 0.5s step-start infinite;
+}

@@ -198,7 +198,32 @@ class MyScene extends THREE.Scene {
     const projectile = this.projectileManager.createProjectile(shipFrontPosition);
     this.projectileManager.addProjectile(projectile, realPosition, 10);
     this.score += 50;
-    this.showMessage("UFO HIT");
+    this.showMessage(this.getRandomMessage());
+  }
+
+  getRandomMessage() {
+    const messages = ["NICE HIT", "GOOD JOB", "EXCELLENT", "WELL DONE"];
+    return messages[Math.floor(Math.random() * messages.length)];
+  }
+
+  showMessage(message) {
+    const messageElement = document.getElementById("message");
+    const messageContainer = document.getElementById("message-container");
+    messageElement.textContent = message;
+    messageElement.style.display = 'block';
+    messageContainer.style.display = 'block';
+
+    // Añadir clase de parpadeo
+    messageContainer.classList.add('blink');
+
+    console.log(message);
+
+    setTimeout(() => {
+      // Quitar clase de parpadeo y ocultar el contenedor
+      messageElement.style.display = 'none';
+      messageContainer.style.display = 'none';
+      messageContainer.classList.remove('blink');
+    }, 2000);
   }
 
   checkForNearbyRobots() {
@@ -253,15 +278,6 @@ class MyScene extends THREE.Scene {
 
   updateScore() {
     document.getElementById("score").textContent = this.score;
-  }
-
-  showMessage(message) {
-    const messageElement = document.getElementById("message");
-    messageElement.textContent = message;
-
-    setTimeout(() => {
-      messageElement.textContent = "";
-    }, 2000);
   }
 }
 
