@@ -8,6 +8,9 @@ class SpaceShip extends THREE.Object3D {
   constructor(tubeGeometry) {
     super();
     this.inputManager = new InputManager();
+    this.canShoot = true;
+    this.cooldownTimeout = null;
+    this.messageTimeout = null;
 
     this.angularPosition = Math.PI;
     const aspectRatio = window.innerWidth / window.innerHeight;
@@ -33,6 +36,14 @@ class SpaceShip extends THREE.Object3D {
         object.translateY(2.5);
         object.castShadow = true;
         object.receiveShadow = true;
+
+        object.traverse(function (child) {
+          if (child instanceof THREE.Mesh) {
+            child.material.transparent = true;
+            child.userData.originalColor = child.material.color.getHex();
+          }
+        });
+
         object.add(this.chaseCamera);
         this.orientationNode.add(object);
 
@@ -58,7 +69,6 @@ class SpaceShip extends THREE.Object3D {
 
     this.add(this.positionOnTube);
 
-    // Añadir un nodo que específicamente apunta al frente
     this.frontNode = new THREE.Object3D();
     this.frontNode.scale.set(0.2, 0.2, 0.2);
     this.frontNode.rotateY(Math.PI);
@@ -99,6 +109,76 @@ class SpaceShip extends THREE.Object3D {
     this.frontNode.getWorldPosition(frontPos);
     return frontPos;
   }
+
+  blink() {
+    const blinkDuration = 2000;
+    const blinkInterval = 100;
+    const redColor = 0xff0000;
+
+    const blinker = () => {
+      this.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          const currentColor = child.material.color.getHex();
+          child.material.color.setHex(currentColor === child.userData.originalColor ? redColor : child.userData.originalColor);
+        }
+      });
+    };
+
+    const blinkIntervalId = setInterval(blinker, blinkInterval);
+
+    setTimeout(() => {
+      clearInterval(blinkIntervalId);
+      this.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material.color.setHex(child.userData.originalColor);
+        }
+      });
+    }, blinkDuration);
+  }
+
+  disableShooting() {
+    this.canShoot = false;
+
+    const cooldownContainer = document.getElementById("cooldown-container");
+    const cooldownBar = document.getElementById("cooldown-bar");
+    cooldownContainer.style.display = 'block';
+    cooldownBar.style.width = '100%';
+    cooldownBar.style.transition = 'none';
+    setTimeout(() => {
+      cooldownBar.style.transition = 'width 7s linear';
+      cooldownBar.style.width = '0%';
+    }, 0); 
+
+    if (this.cooldownTimeout) {
+      clearTimeout(this.cooldownTimeout);
+    }
+
+    this.cooldownTimeout = setTimeout(() => {
+      this.canShoot = true;
+      cooldownContainer.style.display = 'none';
+      this.cooldownTimeout = null;
+    }, 7000);
+
+    const messageElement = document.getElementById("message");
+    const messageContainer = document.getElementById("message-container");
+    messageElement.textContent = "DISABLED";
+    messageContainer.style.display = 'block';
+    messageContainer.style.color = "#FF0000";
+    messageContainer.classList.add('blink');
+
+
+    if (this.messageTimeout) {
+      clearTimeout(this.messageTimeout);
+    }
+
+    this.messageTimeout = setTimeout(() => {
+      messageElement.style.display = 'none';
+      messageContainer.style.display = 'none';
+      messageContainer.classList.remove('blink');
+      this.messageTimeout = null;
+    }, 7000)
+  }
 }
 
 export { SpaceShip };
+

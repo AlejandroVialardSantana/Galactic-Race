@@ -28,7 +28,11 @@ class MyScene extends THREE.Scene {
     this.collisionManager = new CollisionManager(this);
     this.animationManager = new AnimationManager(this);
     this.inputManager = new InputManager();
-    this.renderManager = new RenderManager(this, this.renderer, this.cameraManager);
+    this.renderManager = new RenderManager(
+      this,
+      this.renderer,
+      this.cameraManager
+    );
 
     this.addGameObjects();
     this.bindMethods();
@@ -37,7 +41,6 @@ class MyScene extends THREE.Scene {
   }
 
   initScene(myCanvas) {
-    // Configuración inicial de la escena
     this.travelTime = config.spaceship.travelTime;
     this.velocity = 1 / this.travelTime;
     this.t = 0;
@@ -48,15 +51,17 @@ class MyScene extends THREE.Scene {
     this.objects = [];
     this.ufos = [];
 
-    // Renderizador y luces
     this.renderer = this.createRenderer(myCanvas);
     this.createLights();
-    this.add(this.axis);
     this.spaceShipPosition = new THREE.Vector3();
     this.tube = new SpaceTube();
     this.spaceShip = new SpaceShip(this.tube.getGeometry());
     this.spaceShip.boundingBox = new THREE.Box3().setFromObject(this.spaceShip);
-    this.cameraManager = new CameraManager(this, this.renderer, this.spaceShip.chaseCamera);
+    this.cameraManager = new CameraManager(
+      this,
+      this.renderer,
+      this.spaceShip.chaseCamera
+    );
     this.add(this.tube.getMesh());
     this.add(this.spaceShip);
   }
@@ -66,21 +71,17 @@ class MyScene extends THREE.Scene {
     renderer.setClearColor(new THREE.Color(config.scene.backgroundColor));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Mejor calidad de sombras
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     $(myCanvas).append(renderer.domElement);
     return renderer;
   }
 
   createLights() {
-    // Luz ambiental
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    // this.add(ambientLight);
-
-    // Luz direccional
     const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     directionalLight.position.set(-100, 100, 100);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048; // Tamaño de mapa de sombras
+    directionalLight.shadow.mapSize.width = 2048;
     directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.1;
     directionalLight.shadow.camera.far = 50;
@@ -89,19 +90,19 @@ class MyScene extends THREE.Scene {
     directionalLight.shadow.camera.top = 50;
     directionalLight.shadow.camera.bottom = -50;
 
-    //this.add(directionalLight);
-
-    // Luz hemisférica
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
     hemiLight.color.setHSL(0.6, 1, 0.6);
     hemiLight.groundColor.setHSL(0.095, 1, 0.75);
     hemiLight.position.set(0, 50, 0);
+
+    this.add(ambientLight);
+    this.add(directionalLight);
     // this.add(hemiLight);
   }
 
   addSpaceBackground() {
     const loader = new THREE.TextureLoader();
-    loader.load('../assets/spacial-background.jpg', (texture) => {
+    loader.load("../assets/spacial-background.jpg", (texture) => {
       const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
       rt.fromEquirectangularTexture(this.renderer, texture);
       this.background = rt.texture;
@@ -110,10 +111,13 @@ class MyScene extends THREE.Scene {
 
   bindMethods() {
     this.resetRobot = this.resetRobot.bind(this);
+    this.onDocumentMouseDown = this.onDocumentMouseDown.bind(this);
+    this.onWindowResize = this.onWindowResize.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
   }
 
   addGameObjects() {
-    this.objectManager.addAliens(5, 15, 30); // 5 oro, 15 plata, 30 bronce
+    this.objectManager.addAliens(5, 15, 30);
     this.objectManager.addGameObjects(Robot, 7);
     this.objectManager.addGameObjects(UFO, 5, this.ufos);
     this.objectManager.addGameObjects(ElectricFence, 5);
@@ -127,6 +131,10 @@ class MyScene extends THREE.Scene {
     }
   }
 
+  renderOnce() {
+    this.renderManager.render();
+  }
+
   update() {
     const delta = this.clock.getDelta();
     const ufoDelta = this.ufoClock.getDelta();
@@ -137,7 +145,9 @@ class MyScene extends THREE.Scene {
       this.t -= 1;
       this.velocity *= 1.1;
       this.resetCollisionFlags();
-      this.objects.filter((object) => object instanceof Robot).forEach((robot) => robot.hasFired = false);
+      this.objects
+        .filter((object) => object instanceof Robot)
+        .forEach((robot) => (robot.hasFired = false));
     }
     this.spaceShip.update(this.t, delta);
     this.spaceShip.boundingBox.setFromObject(this.spaceShip);
@@ -171,6 +181,8 @@ class MyScene extends THREE.Scene {
   onDocumentMouseDown(event) {
     event.preventDefault();
 
+    if (!this.cameraManager) return;
+
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2(
       (event.clientX / window.innerWidth) * 2 - 1,
@@ -195,7 +207,10 @@ class MyScene extends THREE.Scene {
   handleUFOHit(selectedUFO, realPosition) {
     this.animationManager.startBlinking(selectedUFO);
     const shipFrontPosition = this.spaceShip.getFrontPosition();
-    const projectile = this.projectileManager.createProjectile(shipFrontPosition);
+    const projectile = this.projectileManager.createProjectile(
+      shipFrontPosition,
+      0x0000ff
+    ); // Blue color for spaceship projectile
     this.projectileManager.addProjectile(projectile, realPosition, 10);
     this.score += 50;
     this.showMessage(this.getRandomMessage());
@@ -206,36 +221,38 @@ class MyScene extends THREE.Scene {
     return messages[Math.floor(Math.random() * messages.length)];
   }
 
-  showMessage(message) {
+  showMessage(message, color = "#00FF00", duration = 2000) {
     const messageElement = document.getElementById("message");
     const messageContainer = document.getElementById("message-container");
     messageElement.textContent = message;
-    messageElement.style.display = 'block';
-    messageContainer.style.display = 'block';
+    messageElement.style.display = "block";
+    messageContainer.style.display = "block";
+    messageContainer.style.color = color;
 
-    // Añadir clase de parpadeo
-    messageContainer.classList.add('blink');
-
-    console.log(message);
+    messageContainer.classList.add("blink");
 
     setTimeout(() => {
-      // Quitar clase de parpadeo y ocultar el contenedor
-      messageElement.style.display = 'none';
-      messageContainer.style.display = 'none';
-      messageContainer.classList.remove('blink');
-    }, 2000);
+      messageElement.style.display = "none";
+      messageContainer.style.display = "none";
+      messageContainer.classList.remove("blink");
+    }, duration);
   }
 
   checkForNearbyRobots() {
     const detectionRange = 20;
 
     this.objects
-      .filter(object => object instanceof Robot)
-      .forEach(robot => {
+      .filter((object) => object instanceof Robot)
+      .forEach((robot) => {
         const robotPosition = robot.positionOnTube.position;
         const shipPosition = this.spaceShip.positionOnTube.position;
 
-        if (robotPosition && shipPosition && robotPosition.distanceTo(shipPosition) < detectionRange && !robot.hasFired) {
+        if (
+          robotPosition &&
+          shipPosition &&
+          robotPosition.distanceTo(shipPosition) < detectionRange &&
+          !robot.hasFired
+        ) {
           robot.hasFired = true;
           this.triggerRobotAttack(robot);
         }
@@ -260,11 +277,19 @@ class MyScene extends THREE.Scene {
   fireProjectileFromRobot(robot) {
     const cannonWorldPosition = new THREE.Vector3();
     robot.arm.getWorldPosition(cannonWorldPosition);
-    const projectile = this.projectileManager.createProjectile(cannonWorldPosition);
+    const projectile = this.projectileManager.createProjectile(
+      cannonWorldPosition,
+      0xff0000
+    );
     const shipPos = this.spaceShip.positionOnTube.position.clone();
-    const direction = new THREE.Vector3().subVectors(shipPos, cannonWorldPosition).normalize();
+    const direction = new THREE.Vector3()
+      .subVectors(shipPos, cannonWorldPosition)
+      .normalize();
     const speed = 30;
-    this.projectileManager.addRobotProjectile(projectile, direction.multiplyScalar(speed));
+    this.projectileManager.addRobotProjectile(
+      projectile,
+      direction.multiplyScalar(speed)
+    );
 
     setTimeout(() => {
       this.resetRobot(robot, 1000);
@@ -279,6 +304,11 @@ class MyScene extends THREE.Scene {
   updateScore() {
     document.getElementById("score").textContent = this.score;
   }
+
+  handleSpaceShipHit() {
+    this.showMessage("WARNING", "#FF0000");
+    this.spaceShip.blink();
+  }
 }
 
 $(function () {
@@ -286,7 +316,9 @@ $(function () {
 
   window.addEventListener("resize", () => scene.onWindowResize());
   window.addEventListener("keydown", (event) => scene.onKeyDown(event));
-  document.addEventListener("mousedown", (event) => scene.onDocumentMouseDown(event));
+  document.addEventListener("mousedown", (event) =>
+    scene.onDocumentMouseDown(event)
+  );
 
   scene.update();
 });

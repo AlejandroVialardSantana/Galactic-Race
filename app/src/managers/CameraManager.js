@@ -29,7 +29,6 @@ class CameraManager {
   }
 
   switchCamera() {
-    console.log('gola');
     if (this.currentCamera === this.generalCamera) {
       this.currentCamera = this.chaseCamera;
     } else {

@@ -8,13 +8,14 @@ class Robot extends THREE.Object3D {
 
     this.robot = new THREE.Object3D();
     this.hasFired = false;
+    this.damage = 50;
 
     const metalMaterial = new THREE.MeshPhysicalMaterial({
       color: 0xc3c3c3,
       metalness: 0.8,
       roughness: 0.6,
-      reflectivity: 0.8, // Ajustar la reflectividad
-      clearcoat: 1, // Añadir un capa de acabado para un aspecto más brillante
+      reflectivity: 0.8,
+      clearcoat: 1,
       clearcoatRoughness: 0.1,
     });
 
