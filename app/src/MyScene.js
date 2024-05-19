@@ -37,11 +37,14 @@ class MyScene extends THREE.Scene {
     this.bindMethods();
 
     this.addSpaceBackground();
+
+    this.gameStarted = false;
+    this.hideLoadingScreen();
   }
 
   initScene(myCanvas) {
     this.travelTime = config.spaceship.travelTime;
-    this.velocity = 1 / this.travelTime;
+    this.velocity = 0;
     this.t = 0;
     this.score = 0;
     this.clock = new THREE.Clock();
@@ -139,7 +142,10 @@ class MyScene extends THREE.Scene {
     const ufoDelta = this.ufoClock.getDelta();
     const proyectileDelta = this.proyectileClock.getDelta();
 
-    this.t += this.velocity * delta;
+    if (this.gameStarted) {
+      this.t += this.velocity * delta;
+    }
+   
     if (this.t > 1) {
       this.t -= 1;
       this.velocity *= 1.1;
@@ -165,6 +171,37 @@ class MyScene extends THREE.Scene {
     }
 
     requestAnimationFrame(() => this.update());
+  }
+
+  startGame() {
+    this.gameStarted = true;
+    this.velocity = 0;
+    this.startCountdown();
+  }
+
+  startCountdown() {
+    const countdownElement = document.getElementById("countdown");
+    const countdownContainer = document.getElementById("countdown-container");
+    let countdown = 3;
+
+    const showCountdown = () => {
+      const countdownInterval = setInterval(() => {
+        countdownContainer.style.display = "block";
+        if (countdown > 0) {
+          countdownElement.textContent = countdown;
+          countdown--;
+        } else {
+          countdownElement.textContent = "GO!";
+          this.velocity = 1 / this.travelTime;  // Iniciar el movimiento de la nave
+          clearInterval(countdownInterval);
+          setTimeout(() => {
+            countdownContainer.style.display = "none";
+          }, 1000);
+        }
+      }, 1000);
+    };
+
+    setTimeout(showCountdown, 300); // Pequeño retraso para asegurar que el contenedor esté listo
   }
 
   resetCollisionFlags() {
@@ -209,7 +246,7 @@ class MyScene extends THREE.Scene {
     const projectile = this.projectileManager.createProjectile(
       shipFrontPosition,
       0x0000ff
-    ); // Blue color for spaceship projectile
+    );
     this.projectileManager.addProjectile(projectile, realPosition, 10);
     this.score += 50;
     this.showMessage(this.getRandomMessage());
@@ -314,10 +351,44 @@ class MyScene extends THREE.Scene {
     this.showMessage("WARNING", "#FF0000", 2000);
     this.spaceShip.blink();
   }
+
+  showLoadingScreen() {
+    const loadingScreen = document.getElementById("loading-screen");
+    loadingScreen.style.display = "flex";
+  }
+
+  hideLoadingScreen() {
+    const loadingScreen = document.getElementById("loading-screen");
+    loadingScreen.style.display = "none";
+  }
+
+  showStartingGameScreen() {
+    const startingGameScreen = document.getElementById("starting-game-screen");
+    startingGameScreen.style.display = "flex";
+  }
+
+  hideStartingGameScreen() {
+    const startingGameScreen = document.getElementById("starting-game-screen");
+    startingGameScreen.style.display = "none";
+  }
 }
 
 $(function () {
-  var scene = new MyScene("#WebGL-output");
+  const scene = new MyScene("#WebGL-output");
+
+  scene.showLoadingScreen();
+
+  $('#start-button').click(() => {
+    $('#start-screen').hide();
+    scene.showStartingGameScreen();
+    $('#game-container').show();
+
+    setTimeout(() => {
+      scene.update();
+      scene.startGame();
+      scene.hideStartingGameScreen();
+    }, 2000); 
+  });
 
   window.addEventListener("resize", () => scene.onWindowResize());
   window.addEventListener("keydown", (event) => scene.onKeyDown(event));
@@ -325,5 +396,7 @@ $(function () {
     scene.onDocumentMouseDown(event)
   );
 
-  scene.update();
+  setTimeout(() => {
+    scene.hideLoadingScreen();
+  }, 3000);
 });

@@ -1,34 +1,48 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Galactic Race</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <script type="text/javascript" src="../libs/jquery.js"></script>
     <script type="importmap">
-          { "imports": { "three": "../libs/three.module.js" } }
+      { "imports": { "three": "../libs/three.module.js" } }
     </script>
     <script type="module" src="./MyScene.js"></script>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
-<body>
-<!-- Div which will hold the Output -->
-<div id="WebGL-output"></div>
-
-<div id="score-container">
-    Score: <span id="score">0</span>
-</div>
-
-<div id="message-container">
-    <span id="message"></span>
-</div>
-
-<div id="cooldown-container">
-    <div id="cooldown-bar"></div>
-</div>
-
-<div id="invulnerable-container">
-    <div id="invulnerable-bar"></div>
-</div>
-
-</body>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div id="loading-content">
+        <h1>Loading...</h1>
+        <div class="spinner"></div>
+      </div>
+    </div>
+    <div id="start-screen">
+      <h1>Galactic Race</h1>
+      <button id="start-button">Start</button>
+      <button id="instructions-button">Instructions</button>
+    </div>
+    <div id="starting-game-screen" style="display: none">
+      <div id="starting-game-content">
+        <h1>Starting game...</h1>
+        <div class="spinner"></div>
+      </div>
+    </div>
+    <div id="game-container" style="display: none">
+      <div id="WebGL-output"></div>
+      <div id="score-container">Score: <span id="score">0</span></div>
+      <div id="message-container">
+        <span id="message"></span>
+      </div>
+      <div id="countdown-container">
+        <span id="countdown"></span>
+      </div>
+      <div id="cooldown-container">
+        <div id="cooldown-bar"></div>
+      </div>
+      <div id="invulnerable-container">
+        <div id="invulnerable-bar"></div>
+      </div>
+    </div>
+  </body>
 </html>

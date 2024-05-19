@@ -15,7 +15,7 @@ class SpaceShip extends THREE.Object3D {
     this.invulnerableTimeout = null;
     this.messageTimeout = null;
 
-    this.angularPosition = Math.PI;
+    this.angularPosition = Math.PI / 2;
     const aspectRatio = window.innerWidth / window.innerHeight;
     this.chaseCamera = new THREE.PerspectiveCamera(100, aspectRatio, 0.1, 500);
     this.chaseCamera.position.set(0, 5, 10);

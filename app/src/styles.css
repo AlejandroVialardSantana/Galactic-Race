@@ -6,6 +6,37 @@ body {
     font-family: 'Orbitron', sans-serif;
 }
 
+#loading-screen, #starting-game-screen {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#loading-content, #starting-game-content{
+    text-align: center;
+}
+
+.spinner {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #00FF00;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 #WebGL-output {
     width: 100vw;
     height: 100vh;
@@ -94,4 +125,59 @@ body {
 
 #message-container.blink span {
     animation: blink 0.5s step-start infinite;
+}
+
+#start-screen {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#start-button, #instructions-button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #00FF00;
+    color: black;
+    cursor: pointer;
+    max-width: 200px;
+    width: 100%;
+    transition: background-color 0.3s;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#start-button:hover, #instructions-button:hover {
+    background-color: #219a21;
+}
+
+#game-container {
+    display: none;
+}
+
+#countdown-container {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #00FF00;
+    font-size: 100px;
+    text-shadow: 0 0 10px #00FF00;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #00FF00;
+    display: none;
+    z-index: 10;
+    max-width: 200px;
+    width: 100%;
+    text-align: center;
 }
