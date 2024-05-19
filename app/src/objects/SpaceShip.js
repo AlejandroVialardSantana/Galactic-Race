@@ -77,6 +77,12 @@ class SpaceShip extends THREE.Object3D {
     this.frontNode.rotateY(Math.PI);
     this.frontNode.translateY(2.5);
     this.orientationNode.add(this.frontNode);
+
+    this.alertSound = new Audio('../../sounds/alert.mp3');
+    this.alertSound.loop = true;
+
+    this.invulnerableSound = new Audio('../../sounds/shields-down.mp3');
+    this.invulnerableSound.loop = true;
   }
 
   update(t, delta) {
@@ -140,6 +146,9 @@ class SpaceShip extends THREE.Object3D {
   }
 
   disableShooting() {
+    // Reproducir sonido de alerta
+    this.alertSound.play();
+
     this.canShoot = false;
     this.isDisabled = true;
 
@@ -162,13 +171,19 @@ class SpaceShip extends THREE.Object3D {
       this.isDisabled = false;
       cooldownContainer.style.display = 'none';
       this.cooldownTimeout = null;
+      this.alertSound.pause();
+      this.alertSound.currentTime = 0;
     }, 7000);
 
     this.showMessage("DISABLED", "#FF0000", 7000);
   }
 
   enableInvulnerability() {
+    // Reproducir sonido de invulnerabilidad
+    this.invulnerableSound.play();
+
     this.isInvulnerable = true;
+
 
     const invulnerableContainer = document.getElementById("invulnerable-container");
     const invulnerableBar = document.getElementById("invulnerable-bar");
@@ -188,6 +203,8 @@ class SpaceShip extends THREE.Object3D {
       this.isInvulnerable = false;
       invulnerableContainer.style.display = 'none';
       this.invulnerableTimeout = null;
+      this.invulnerableSound.pause();
+      this.invulnerableSound.currentTime = 0;
     }, 7000);
 
     this.showMessage("INVULNERABLE", "#0000FF", 7000);

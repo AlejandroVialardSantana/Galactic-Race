@@ -119,12 +119,12 @@ class MyScene extends THREE.Scene {
   }
 
   addGameObjects() {
-    this.objectManager.addAliens(5, 15, 30);
-    this.objectManager.addGameObjects(Robot, 5);
-    this.objectManager.addGameObjects(UFO, 5, this.ufos);
-    this.objectManager.addGameObjects(ElectricFence, 7);
-    this.objectManager.addGameObjects(Asteroid, 10);
-    this.objectManager.addGameObjects(Shield, 20);
+    this.objectManager.addAliens(5, 8, 12);
+    this.objectManager.addGameObjects(Robot, 7);
+    this.objectManager.addGameObjects(UFO, 15, this.ufos);
+    this.objectManager.addGameObjects(ElectricFence, 12);
+    this.objectManager.addGameObjects(Asteroid, 12);
+    this.objectManager.addGameObjects(Shield, 7);
   }
 
   onKeyDown(event) {
@@ -145,7 +145,7 @@ class MyScene extends THREE.Scene {
     if (this.gameStarted) {
       this.t += this.velocity * delta;
     }
-   
+
     if (this.t > 1) {
       this.t -= 1;
       this.velocity *= 1.1;
@@ -190,8 +190,10 @@ class MyScene extends THREE.Scene {
         if (countdown > 0) {
           countdownElement.textContent = countdown;
           countdown--;
+          this.playBeepSound();
         } else {
           countdownElement.textContent = "GO!";
+          this.playBeepSound();
           this.velocity = 1 / this.travelTime;  // Iniciar el movimiento de la nave
           clearInterval(countdownInterval);
           setTimeout(() => {
@@ -202,6 +204,11 @@ class MyScene extends THREE.Scene {
     };
 
     setTimeout(showCountdown, 300); // Pequeño retraso para asegurar que el contenedor esté listo
+  }
+
+  playBeepSound() {
+    const beepSound = new Audio('../sounds/beep.mp3');
+    beepSound.play();
   }
 
   resetCollisionFlags() {
@@ -218,6 +225,10 @@ class MyScene extends THREE.Scene {
     event.preventDefault();
 
     if (!this.cameraManager) return;
+
+    if (this.spaceShip.isDisabled) {
+      return; // Si la nave está deshabilitada, no permitir interacción con los UFOs
+    }
 
     var raycaster = new THREE.Raycaster();
     var mouse = new THREE.Vector2(
@@ -248,7 +259,10 @@ class MyScene extends THREE.Scene {
       0x0000ff
     );
     this.projectileManager.addProjectile(projectile, realPosition, 10);
+    
     this.score += 50;
+    this.updateScore();
+    
     this.showMessage(this.getRandomMessage());
   }
 
@@ -348,8 +362,22 @@ class MyScene extends THREE.Scene {
   }
 
   handleSpaceShipHit() {
+    this.playBeepWarningSound();
+
     this.showMessage("WARNING", "#FF0000", 2000);
+
     this.spaceShip.blink();
+  }
+
+  playBeepWarningSound() {
+    const beepWarningSound = new Audio('../sounds/beep-warning.mp3');
+    beepWarningSound.play();
+    beepWarningSound.loop = true;
+
+    setTimeout(() => {
+      beepWarningSound.pause();
+      beepWarningSound.currentTime = 0;
+    }, 2000);
   }
 
   showLoadingScreen() {
@@ -376,7 +404,20 @@ class MyScene extends THREE.Scene {
 $(function () {
   const scene = new MyScene("#WebGL-output");
 
-  scene.showLoadingScreen();
+  scene.showLoadingScreen();  // Mostrar pantalla de carga al inicio
+
+  // Cargar sonidos
+  const hoverSound = new Audio('../sounds/hover.mp3');
+  const clickSound = new Audio('../sounds/click-button.mp3');
+
+  // Agregar eventos de sonido a los botones
+  $('#start-button, #instructions-button').on('mouseenter', function () {
+    hoverSound.play();
+  });
+
+  $('#start-button, #instructions-button').on('click', function () {
+    clickSound.play();
+  });
 
   $('#start-button').click(() => {
     $('#start-screen').hide();
@@ -387,7 +428,7 @@ $(function () {
       scene.update();
       scene.startGame();
       scene.hideStartingGameScreen();
-    }, 2000); 
+    }, 2000); // Ajusta el tiempo según sea necesario
   });
 
   window.addEventListener("resize", () => scene.onWindowResize());
@@ -396,7 +437,8 @@ $(function () {
     scene.onDocumentMouseDown(event)
   );
 
+  // Ocultar la pantalla de carga después de un tiempo (simulación)
   setTimeout(() => {
     scene.hideLoadingScreen();
-  }, 3000);
+  }, 5000);
 });

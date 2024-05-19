@@ -21,6 +21,7 @@ class CollisionManager {
         if (!this.scene.spaceShip.isInvulnerable) {
           this.scene.handleSpaceShipHit();
           this.scene.projectileManager.removeProjectile(index);
+          this.scene.score = Math.max(0, this.scene.score - 20);
         }
       }
     });

@@ -4,6 +4,9 @@ class ProjectileManager {
   constructor(scene) {
     this.scene = scene;
     this.projectiles = [];
+    
+    this.beamSound = new Audio("../../sounds/beam.mp3");
+    this.laserSound = new Audio("../../sounds/laser.mp3");
   }
 
   createProjectile(position, color = 0xff0000) {
@@ -16,9 +19,12 @@ class ProjectileManager {
   }
 
   addProjectile(projectile, target, speed) {
-    if (this.scene.spaceship.isDisabled) return;
+    if (this.scene.spaceShip.isDisabled) return;
     this.projectiles.push({ projectile, target, speed, isRobotProjectile: false });
     this.scene.add(projectile);
+
+    this.laserSound.currentTime = 0;
+    this.laserSound.play();
   }
 
   addRobotProjectile(projectile, velocity) {
@@ -26,6 +32,9 @@ class ProjectileManager {
     projectile.boundingBox = new THREE.Box3().setFromObject(projectile);
     this.projectiles.push({ projectile, velocity, isRobotProjectile: true });
     this.scene.add(projectile);
+
+    this.beamSound.currentTime = 0;
+    this.beamSound.play();
   }
 
   updateProjectiles(delta) {
