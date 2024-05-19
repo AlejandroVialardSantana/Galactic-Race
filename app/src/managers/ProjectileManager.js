@@ -16,6 +16,7 @@ class ProjectileManager {
   }
 
   addProjectile(projectile, target, speed) {
+    if (this.scene.spaceship.isDisabled) return;
     this.projectiles.push({ projectile, target, speed, isRobotProjectile: false });
     this.scene.add(projectile);
   }
