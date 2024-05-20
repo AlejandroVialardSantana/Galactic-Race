@@ -40,6 +40,10 @@ class MyScene extends THREE.Scene {
 
     this.gameStarted = false;
     this.hideLoadingScreen();
+
+    this.backgroundMusic = new Audio('../sounds/background-music.mp3');
+    this.backgroundMusic.loop = true;
+    this.backgroundMusic.volume = 0.3;
   }
 
   initScene(myCanvas) {
@@ -177,6 +181,11 @@ class MyScene extends THREE.Scene {
     this.gameStarted = true;
     this.velocity = 0;
     this.startCountdown();
+    this.playBackgroundMusic();
+  }
+
+  playBackgroundMusic() {
+    this.backgroundMusic.play();
   }
 
   startCountdown() {

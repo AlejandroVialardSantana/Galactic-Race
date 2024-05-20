@@ -83,6 +83,7 @@ class SpaceShip extends THREE.Object3D {
 
     this.invulnerableSound = new Audio('../../sounds/shields-down.mp3');
     this.invulnerableSound.loop = true;
+    this.invulnerableSound.volume = 1;
   }
 
   update(t, delta) {
