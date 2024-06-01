@@ -1,3 +1,4 @@
+// SpaceShip.js
 import * as THREE from "three";
 import { OBJLoader } from "../../libs/OBJLoader.js";
 import { MTLLoader } from "../../libs/MTLLoader.js";
@@ -122,15 +123,17 @@ class SpaceShip extends THREE.Object3D {
   }
 
   blink() {
-    const blinkDuration = 2000;
+    this.blinkWithColor(0xff0000, 2000);
+  }
+
+  blinkWithColor(color, duration) {
     const blinkInterval = 100;
-    const redColor = 0xff0000;
 
     const blinker = () => {
       this.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           const currentColor = child.material.color.getHex();
-          child.material.color.setHex(currentColor === child.userData.originalColor ? redColor : child.userData.originalColor);
+          child.material.color.setHex(currentColor === child.userData.originalColor ? color : child.userData.originalColor);
         }
       });
     };
@@ -144,7 +147,7 @@ class SpaceShip extends THREE.Object3D {
           child.material.color.setHex(child.userData.originalColor);
         }
       });
-    }, blinkDuration);
+    }, duration);
   }
 
   disableShooting() {
@@ -178,6 +181,7 @@ class SpaceShip extends THREE.Object3D {
     }, 7000);
 
     this.uiManager.showMessage("DISABLED", "#FF0000", 7000);
+    this.blinkWithColor(0xff0000, 7000);
   }
 
   enableInvulnerability() {
@@ -185,7 +189,6 @@ class SpaceShip extends THREE.Object3D {
     this.invulnerableSound.play();
 
     this.isInvulnerable = true;
-
 
     const invulnerableContainer = document.getElementById("invulnerable-container");
     const invulnerableBar = document.getElementById("invulnerable-bar");
@@ -210,6 +213,7 @@ class SpaceShip extends THREE.Object3D {
     }, 7000);
 
     this.uiManager.showMessage("INVULNERABLE", "#0000FF", 7000);
+    this.blinkWithColor(0x0000ff, 7000);
   }
 }
 

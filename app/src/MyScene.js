@@ -107,7 +107,7 @@ class MyScene extends THREE.Scene {
 
     this.add(ambientLight);
     this.add(directionalLight);
-    // this.add(hemiLight);
+    this.add(hemiLight);
   }
 
   addSpaceBackground() {
