@@ -1,3 +1,4 @@
+// MyScene.js
 import * as THREE from "three";
 import * as TWEEN from "../../libs/tween.esm.js";
 import { SpaceTube } from "./objects/SpaceTube.js";
@@ -14,11 +15,14 @@ import { CollisionManager } from "./managers/CollisionManager.js";
 import { InputManager } from "./managers/InputManager.js";
 import { AnimationManager } from "./managers/AnimationManager.js";
 import { RenderManager } from "./managers/RenderManager.js";
+import { UIManager } from "./managers/UIManager.js";
 import { config } from "./config/config.js";
 
 class MyScene extends THREE.Scene {
   constructor(myCanvas) {
     super();
+
+    this.uiManager = new UIManager(); // Asegúrate de que el UIManager se crea aquí
 
     this.initScene(myCanvas);
 
@@ -39,7 +43,7 @@ class MyScene extends THREE.Scene {
     this.addSpaceBackground();
 
     this.gameStarted = false;
-    this.hideLoadingScreen();
+    this.uiManager.hideLoadingScreen();
 
     this.backgroundMusic = new Audio('../sounds/background-music.mp3');
     this.backgroundMusic.loop = true;
@@ -61,7 +65,7 @@ class MyScene extends THREE.Scene {
     this.createLights();
     this.spaceShipPosition = new THREE.Vector3();
     this.tube = new SpaceTube();
-    this.spaceShip = new SpaceShip(this.tube.getGeometry());
+    this.spaceShip = new SpaceShip(this.tube.getGeometry(), this.uiManager); // Pasar uiManager aquí
     this.spaceShip.boundingBox = new THREE.Box3().setFromObject(this.spaceShip);
     this.cameraManager = new CameraManager(
       this,
@@ -180,8 +184,10 @@ class MyScene extends THREE.Scene {
   startGame() {
     this.gameStarted = true;
     this.velocity = 0;
-    this.startCountdown();
-    this.playBackgroundMusic();
+    this.uiManager.startCountdown(() => {
+      this.velocity = 1 / this.travelTime;  // Iniciar el movimiento de la nave
+      this.playBackgroundMusic();
+    });
   }
 
   playBackgroundMusic() {
@@ -281,26 +287,7 @@ class MyScene extends THREE.Scene {
   }
 
   showMessage(message, color = "#00FF00", duration = 2000) {
-    const messageElement = document.getElementById("message");
-    const messageContainer = document.getElementById("message-container");
-    
-    // Clear any existing message timeout
-    if (this.messageTimeout) {
-      clearTimeout(this.messageTimeout);
-      this.messageTimeout = null;
-    }
-
-    messageElement.textContent = message;
-    messageContainer.style.display = "block";
-    messageContainer.style.color = color;
-
-    messageContainer.classList.add("blink");
-
-    this.messageTimeout = setTimeout(() => {
-      messageContainer.style.display = "none";
-      messageContainer.classList.remove("blink");
-      this.messageTimeout = null;
-    }, duration);
+    this.uiManager.showMessage(message, color, duration);
   }
 
   checkForNearbyRobots() {
@@ -367,7 +354,7 @@ class MyScene extends THREE.Scene {
   }
 
   updateScore() {
-    document.getElementById("score").textContent = this.score;
+    this.uiManager.updateScore(this.score);
   }
 
   handleSpaceShipHit() {
@@ -388,56 +375,23 @@ class MyScene extends THREE.Scene {
       beepWarningSound.currentTime = 0;
     }, 2000);
   }
-
-  showLoadingScreen() {
-    const loadingScreen = document.getElementById("loading-screen");
-    loadingScreen.style.display = "flex";
-  }
-
-  hideLoadingScreen() {
-    const loadingScreen = document.getElementById("loading-screen");
-    loadingScreen.style.display = "none";
-  }
-
-  showStartingGameScreen() {
-    const startingGameScreen = document.getElementById("starting-game-screen");
-    startingGameScreen.style.display = "flex";
-  }
-
-  hideStartingGameScreen() {
-    const startingGameScreen = document.getElementById("starting-game-screen");
-    startingGameScreen.style.display = "none";
-  }
 }
 
 $(function () {
   const scene = new MyScene("#WebGL-output");
 
-  scene.showLoadingScreen();  // Mostrar pantalla de carga al inicio
-
-  // Cargar sonidos
-  const hoverSound = new Audio('../sounds/hover.mp3');
-  const clickSound = new Audio('../sounds/click-button.mp3');
-
-  // Agregar eventos de sonido a los botones
-  $('#start-button, #instructions-button').on('mouseenter', function () {
-    hoverSound.play();
-  });
-
-  $('#start-button, #instructions-button').on('click', function () {
-    clickSound.play();
-  });
+  scene.uiManager.showLoadingScreen();  // Mostrar pantalla de carga al inicio
 
   $('#start-button').click(() => {
     $('#start-screen').hide();
-    scene.showStartingGameScreen();
+    scene.uiManager.showStartingGameScreen();
     $('#game-container').show();
 
     setTimeout(() => {
       scene.update();
       scene.startGame();
-      scene.hideStartingGameScreen();
-    }, 2000); // Ajusta el tiempo según sea necesario
+      scene.uiManager.hideStartingGameScreen();
+    }, 2000);
   });
 
   window.addEventListener("resize", () => scene.onWindowResize());
@@ -446,8 +400,7 @@ $(function () {
     scene.onDocumentMouseDown(event)
   );
 
-  // Ocultar la pantalla de carga después de un tiempo (simulación)
   setTimeout(() => {
-    scene.hideLoadingScreen();
+    scene.uiManager.hideLoadingScreen();
   }, 5000);
 });

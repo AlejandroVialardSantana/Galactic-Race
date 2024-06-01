@@ -147,9 +147,9 @@ class UFO extends THREE.Object3D {
     ];
 
     const greenLightColor = 0x00ff00;
-    const greenLightIntensity = 6; // Aumenta la intensidad
-    const greenLightDistance = 15; // Aumenta la distancia
-    const greenLightDecay = 1; // Ajusta la decadencia para una iluminación más uniforme
+    const greenLightIntensity = 6;
+    const greenLightDistance = 100;
+    const greenLightDecay = 1;
 
     const greenLightPositions = [
       new THREE.Vector3(1.5, -0.5, 0),

@@ -227,11 +227,8 @@ class Robot extends THREE.Object3D {
   }
 
   animateBodyRotation(targetAngle, duration) {
-    const currentAngle = this.body.rotation.y;
-    const angleDifference = targetAngle - currentAngle;
-
     new TWEEN.Tween(this.body.rotation)
-      .to({ y: Math.PI * 1.5 }, duration)
+      .to({ y: targetAngle }, duration)
       .easing(TWEEN.Easing.Quadratic.InOut)
       .start();
   }

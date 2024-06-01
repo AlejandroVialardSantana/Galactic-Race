@@ -5,9 +5,10 @@ import { VALUE_A, VALUE_D } from "../../libs/keycode.esm.js";
 import { InputManager } from "../managers/InputManager.js";
 
 class SpaceShip extends THREE.Object3D {
-  constructor(tubeGeometry) {
+  constructor(tubeGeometry, uiManager) {
     super();
     this.inputManager = new InputManager();
+    this.uiManager = uiManager;
     this.canShoot = true;
     this.isInvulnerable = false;
     this.isDisabled = false;
@@ -176,7 +177,7 @@ class SpaceShip extends THREE.Object3D {
       this.alertSound.currentTime = 0;
     }, 7000);
 
-    this.showMessage("DISABLED", "#FF0000", 7000);
+    this.uiManager.showMessage("DISABLED", "#FF0000", 7000);
   }
 
   enableInvulnerability() {
@@ -208,27 +209,7 @@ class SpaceShip extends THREE.Object3D {
       this.invulnerableSound.currentTime = 0;
     }, 7000);
 
-    this.showMessage("INVULNERABLE", "#0000FF", 7000);
-  }
-
-  showMessage(message, color, duration) {
-    const messageElement = document.getElementById("message");
-    const messageContainer = document.getElementById("message-container");
-    messageElement.textContent = message;
-    messageContainer.style.display = 'block';
-    messageContainer.style.color = color;
-
-    messageContainer.classList.add("blink");
-
-    if (this.messageTimeout) {
-      clearTimeout(this.messageTimeout);
-    }
-
-    this.messageTimeout = setTimeout(() => {
-      messageContainer.style.display = 'none';
-      messageContainer.classList.remove("blink");
-      this.messageTimeout = null;
-    }, duration);
+    this.uiManager.showMessage("INVULNERABLE", "#0000FF", 7000);
   }
 }
 
