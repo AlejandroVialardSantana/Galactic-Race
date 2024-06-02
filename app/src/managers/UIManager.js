@@ -1,4 +1,3 @@
-// managers/UIManager.js
 import { config } from "../config/config.js";
 
 class UIManager {
@@ -11,10 +10,12 @@ class UIManager {
     this.scoreElement = document.getElementById(config.ui.scoreElementId);
     this.startingGameScreen = document.getElementById(config.ui.startingGameScreenId);
     this.startScreen = document.getElementById(config.ui.startScreenId);
+    this.instructionsScreen = document.getElementById(config.ui.instructionsScreenId);
     this.gameContainer = document.getElementById(config.ui.gameContainerId);
 
     this.startButton = document.getElementById(config.ui.startButtonId);
     this.instructionsButton = document.getElementById(config.ui.instructionsButtonId);
+    this.backButton = document.getElementById(config.ui.backButtonId);
 
     this.initEventListeners();
   }
@@ -26,7 +27,12 @@ class UIManager {
     this.startButton.addEventListener('mouseenter', () => hoverSound.play());
     this.instructionsButton.addEventListener('mouseenter', () => hoverSound.play());
     this.startButton.addEventListener('click', () => clickSound.play());
-    this.instructionsButton.addEventListener('click', () => clickSound.play());
+    this.instructionsButton.addEventListener('click', () => hoverSound.play());
+    this.backButton.addEventListener('mouseenter', () => hoverSound.play());
+    this.backButton.addEventListener('click', () => hoverSound.play());
+
+    this.instructionsButton.addEventListener('click', () => this.showInstructionsScreen());
+    this.backButton.addEventListener('click', () => this.hideInstructionsScreen());
   }
 
   showLoadingScreen() {
@@ -43,6 +49,16 @@ class UIManager {
 
   hideStartingGameScreen() {
     this.startingGameScreen.style.display = "none";
+  }
+
+  showInstructionsScreen() {
+    this.startScreen.style.display = "none";
+    this.instructionsScreen.style.display = "flex";
+  }
+
+  hideInstructionsScreen() {
+    this.instructionsScreen.style.display = "none";
+    this.startScreen.style.display = "flex";
   }
 
   showMessage(message, color = "#00FF00", duration = 2000) {

@@ -83,9 +83,11 @@ const config = {
     scoreElementId: "score",
     startingGameScreenId: "starting-game-screen",
     startScreenId: "start-screen",
+    instructionsScreenId: "instructions-screen",
     gameContainerId: "game-container",
     startButtonId: "start-button",
-    instructionsButtonId: "instructions-button"
+    instructionsButtonId: "instructions-button",
+    backButtonId: "back-button"
   }
 };
 

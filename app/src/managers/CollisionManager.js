@@ -24,6 +24,7 @@ class CollisionManager {
           this.scene.handleSpaceShipHit();
           this.scene.projectileManager.removeProjectile(index);
           this.scene.score = Math.max(0, this.scene.score - 20);
+          this.scene.updateScore();
         }
       }
     });
@@ -31,15 +32,15 @@ class CollisionManager {
 
   handleCollision(object) {
     if (!object.collided) {
-      if (object instanceof Alien || object instanceof Asteroid) {
-        this.scene.score += object.points || -object.damage;
-        if (object instanceof Alien) {
-          const soundPath = object.material.color.getHex() === 0xFFD700 ? config.sounds.goldAlien : config.sounds.alienPickup;
-          this.temporarilyHideObject(object, soundPath);
-        } else {
-          this.temporarilyHideObject(object, config.sounds.rockDestroy);
-          this.scene.spaceShip.blinkWithColor(0xff0000, 2000);
-        }
+      if (object instanceof Alien) {
+        this.scene.score = Math.max(0, this.scene.score + object.points);
+        const soundPath = object.material.color.getHex() === 0xFFD700 ? config.sounds.goldAlien : config.sounds.alienPickup;
+        this.temporarilyHideObject(object, soundPath);
+        object.collided = true;
+      } else if (object instanceof Asteroid) {
+        this.scene.score = Math.max(0, this.scene.score - object.damage);
+        this.temporarilyHideObject(object, config.sounds.rockDestroy);
+        this.scene.spaceShip.blinkWithColor(0xff0000, 2000);
         object.collided = true;
       } else if (object instanceof Robot) {
         if (!this.scene.spaceShip.isInvulnerable) {

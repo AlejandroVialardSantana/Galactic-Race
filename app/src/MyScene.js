@@ -1,4 +1,3 @@
-// MyScene.js
 import * as THREE from "three";
 import * as TWEEN from "../../libs/tween.esm.js";
 import { SpaceTube } from "./objects/SpaceTube.js";
