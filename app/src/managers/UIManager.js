@@ -1,27 +1,27 @@
 // managers/UIManager.js
-import { uiConfig } from "../config/uiConfig.js";
+import { config } from "../config/config.js";
 
 class UIManager {
   constructor() {
-    this.loadingScreen = document.getElementById(uiConfig.loadingScreenId);
-    this.countdownElement = document.getElementById(uiConfig.countdownElementId);
-    this.countdownContainer = document.getElementById(uiConfig.countdownContainerId);
-    this.messageElement = document.getElementById(uiConfig.messageElementId);
-    this.messageContainer = document.getElementById(uiConfig.messageContainerId);
-    this.scoreElement = document.getElementById(uiConfig.scoreElementId);
-    this.startingGameScreen = document.getElementById(uiConfig.startingGameScreenId);
-    this.startScreen = document.getElementById(uiConfig.startScreenId);
-    this.gameContainer = document.getElementById(uiConfig.gameContainerId);
+    this.loadingScreen = document.getElementById(config.ui.loadingScreenId);
+    this.countdownElement = document.getElementById(config.ui.countdownElementId);
+    this.countdownContainer = document.getElementById(config.ui.countdownContainerId);
+    this.messageElement = document.getElementById(config.ui.messageElementId);
+    this.messageContainer = document.getElementById(config.ui.messageContainerId);
+    this.scoreElement = document.getElementById(config.ui.scoreElementId);
+    this.startingGameScreen = document.getElementById(config.ui.startingGameScreenId);
+    this.startScreen = document.getElementById(config.ui.startScreenId);
+    this.gameContainer = document.getElementById(config.ui.gameContainerId);
 
-    this.startButton = document.getElementById(uiConfig.startButtonId);
-    this.instructionsButton = document.getElementById(uiConfig.instructionsButtonId);
+    this.startButton = document.getElementById(config.ui.startButtonId);
+    this.instructionsButton = document.getElementById(config.ui.instructionsButtonId);
 
     this.initEventListeners();
   }
 
   initEventListeners() {
-    const hoverSound = new Audio('../sounds/hover.mp3');
-    const clickSound = new Audio('../sounds/click-button.mp3');
+    const hoverSound = new Audio(config.sounds.hover);
+    const clickSound = new Audio(config.sounds.clickButton);
 
     this.startButton.addEventListener('mouseenter', () => hoverSound.play());
     this.instructionsButton.addEventListener('mouseenter', () => hoverSound.play());
@@ -85,7 +85,7 @@ class UIManager {
   }
 
   playBeepSound() {
-    const beepSound = new Audio('../sounds/beep.mp3');
+    const beepSound = new Audio(config.sounds.beep);
     beepSound.play();
   }
 }

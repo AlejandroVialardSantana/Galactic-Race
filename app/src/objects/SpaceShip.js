@@ -4,6 +4,7 @@ import { OBJLoader } from "../../libs/OBJLoader.js";
 import { MTLLoader } from "../../libs/MTLLoader.js";
 import { VALUE_A, VALUE_D } from "../../libs/keycode.esm.js";
 import { InputManager } from "../managers/InputManager.js";
+import { config } from "../config/config.js";
 
 class SpaceShip extends THREE.Object3D {
   constructor(tubeGeometry, uiManager) {
@@ -30,15 +31,16 @@ class SpaceShip extends THREE.Object3D {
     this.tubeRadius = tubeGeometry.parameters.radius;
     this.tubeSegments = tubeGeometry.parameters.tubularSegments;
 
+    const modelsConfig = config.spaceship.models;
     var materialLoader = new MTLLoader();
     var objectLoader = new OBJLoader();
 
-    materialLoader.load("../models/D5SpaceShip/d5class.mtl", (materials) => {
+    materialLoader.load(modelsConfig.materialPath, (materials) => {
       objectLoader.setMaterials(materials);
-      objectLoader.load("../models/D5SpaceShip/d5class.obj", (object) => {
-        object.scale.set(0.2, 0.2, 0.2);
-        object.rotateY(Math.PI);
-        object.translateY(2.5);
+      objectLoader.load(modelsConfig.objectPath, (object) => {
+        object.scale.set(modelsConfig.scale.x, modelsConfig.scale.y, modelsConfig.scale.z);
+        object.rotateY(modelsConfig.rotation.y);
+        object.translateY(modelsConfig.translation.y);
         object.castShadow = true;
         object.receiveShadow = true;
 
@@ -80,10 +82,10 @@ class SpaceShip extends THREE.Object3D {
     this.frontNode.translateY(2.5);
     this.orientationNode.add(this.frontNode);
 
-    this.alertSound = new Audio('../../sounds/alert.mp3');
+    this.alertSound = new Audio(config.spaceship.sounds.alert);
     this.alertSound.loop = true;
 
-    this.invulnerableSound = new Audio('../../sounds/shields-down.mp3');
+    this.invulnerableSound = new Audio(config.spaceship.sounds.invulnerable);
     this.invulnerableSound.loop = true;
     this.invulnerableSound.volume = 1;
   }
@@ -122,12 +124,8 @@ class SpaceShip extends THREE.Object3D {
     return frontPos;
   }
 
-  blink() {
-    this.blinkWithColor(0xff0000, 2000);
-  }
-
   blinkWithColor(color, duration) {
-    const blinkInterval = 100;
+    const blinkInterval = config.spaceship.blinkInterval;
 
     const blinker = () => {
       this.traverse((child) => {

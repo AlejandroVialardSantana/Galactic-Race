@@ -45,7 +45,7 @@ class MyScene extends THREE.Scene {
     this.gameStarted = false;
     this.uiManager.hideLoadingScreen();
 
-    this.backgroundMusic = new Audio('../sounds/background-music.mp3');
+    this.backgroundMusic = new Audio(config.sounds.backgroundMusic);
     this.backgroundMusic.loop = true;
     this.backgroundMusic.volume = 0.3;
   }
@@ -87,23 +87,23 @@ class MyScene extends THREE.Scene {
   }
 
   createLights() {
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-    directionalLight.position.set(-100, 100, 100);
+    const ambientLight = new THREE.AmbientLight(config.lights.ambient.color, config.lights.ambient.intensity);
+    const directionalLightConfig = config.lights.directional;
+    const directionalLight = new THREE.DirectionalLight(directionalLightConfig.color, directionalLightConfig.intensity);
+    directionalLight.position.set(directionalLightConfig.position.x, directionalLightConfig.position.y, directionalLightConfig.position.z);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.1;
-    directionalLight.shadow.camera.far = 50;
-    directionalLight.shadow.camera.left = -50;
-    directionalLight.shadow.camera.right = 50;
-    directionalLight.shadow.camera.top = 50;
-    directionalLight.shadow.camera.bottom = -50;
+    directionalLight.shadow.mapSize.width = directionalLightConfig.shadow.mapSize.width;
+    directionalLight.shadow.mapSize.height = directionalLightConfig.shadow.mapSize.height;
+    directionalLight.shadow.camera.near = directionalLightConfig.shadow.camera.near;
+    directionalLight.shadow.camera.far = directionalLightConfig.shadow.camera.far;
+    directionalLight.shadow.camera.left = directionalLightConfig.shadow.camera.left;
+    directionalLight.shadow.camera.right = directionalLightConfig.shadow.camera.right;
+    directionalLight.shadow.camera.top = directionalLightConfig.shadow.camera.top;
+    directionalLight.shadow.camera.bottom = directionalLightConfig.shadow.camera.bottom;
 
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
-    hemiLight.color.setHSL(0.6, 1, 0.6);
-    hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-    hemiLight.position.set(0, 50, 0);
+    const hemiLightConfig = config.lights.hemisphere;
+    const hemiLight = new THREE.HemisphereLight(hemiLightConfig.color, hemiLightConfig.groundColor, hemiLightConfig.intensity);
+    hemiLight.position.set(hemiLightConfig.position.x, hemiLightConfig.position.y, hemiLightConfig.position.z);
 
     this.add(ambientLight);
     this.add(directionalLight);
@@ -112,7 +112,7 @@ class MyScene extends THREE.Scene {
 
   addSpaceBackground() {
     const loader = new THREE.TextureLoader();
-    loader.load("../assets/spacial-background.jpg", (texture) => {
+    loader.load(config.scene.backgroundImagePath, (texture) => {
       const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
       rt.fromEquirectangularTexture(this.renderer, texture);
       this.background = rt.texture;
@@ -127,12 +127,13 @@ class MyScene extends THREE.Scene {
   }
 
   addGameObjects() {
-    this.objectManager.addAliens(5, 8, 12);
-    this.objectManager.addGameObjects(Robot, 7);
-    this.objectManager.addGameObjects(UFO, 15, this.ufos);
-    this.objectManager.addGameObjects(ElectricFence, 12);
-    this.objectManager.addGameObjects(Asteroid, 12);
-    this.objectManager.addGameObjects(Shield, 7);
+    const aliensConfig = config.gameObjects.aliens;
+    this.objectManager.addAliens(aliensConfig.gold, aliensConfig.silver, aliensConfig.bronze);
+    this.objectManager.addGameObjects(Robot, config.gameObjects.robots);
+    this.objectManager.addGameObjects(UFO, config.gameObjects.ufos, this.ufos);
+    this.objectManager.addGameObjects(ElectricFence, config.gameObjects.electricFences);
+    this.objectManager.addGameObjects(Asteroid, config.gameObjects.asteroids);
+    this.objectManager.addGameObjects(Shield, config.gameObjects.shields);
   }
 
   onKeyDown(event) {
@@ -222,7 +223,7 @@ class MyScene extends THREE.Scene {
   }
 
   playBeepSound() {
-    const beepSound = new Audio('../sounds/beep.mp3');
+    const beepSound = new Audio(config.sounds.beep);
     beepSound.play();
   }
 
@@ -362,11 +363,11 @@ class MyScene extends THREE.Scene {
 
     this.showMessage("WARNING", "#FF0000", 2000);
 
-    this.spaceShip.blink();
+    this.spaceShip.blinkWithColor(0xff0000, 2000);
   }
 
   playBeepWarningSound() {
-    const beepWarningSound = new Audio('../sounds/beep-warning.mp3');
+    const beepWarningSound = new Audio(config.sounds.beepWarning);
     beepWarningSound.play();
     beepWarningSound.loop = true;
 
