@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 class UFO extends THREE.Object3D {
-  constructor(tubeGeometry, t, angularPosition) {
+  constructor() {
     super();
 
     this.animationTime = 0;
@@ -45,16 +45,7 @@ class UFO extends THREE.Object3D {
     this.ufo.rotateY(Math.PI);
     this.ufo.scale.set(0.5, 0.5, 0.5);
 
-    this.angularPosition = angularPosition;
-
-    this.positionOnTube = new THREE.Object3D();
-    this.orientationNode = new THREE.Object3D();
-
-    this.orientationNode.add(this.ufo);
-    this.positionOnTube.add(this.orientationNode);
-    this.add(this.positionOnTube);
-
-    this.positionateOnTube(tubeGeometry, t);
+    this.add(this.ufo);
   }
 
   createUFO() {
@@ -135,8 +126,8 @@ class UFO extends THREE.Object3D {
 
   addLights() {
     const lightColor = 0xffffff;
-    const intensity = 6;
-    const distance = 15;
+    const intensity = 2;
+    const distance = 4;
     const decay = 1;
 
     const lightPositions = [
@@ -147,8 +138,8 @@ class UFO extends THREE.Object3D {
     ];
 
     const greenLightColor = 0x00ff00;
-    const greenLightIntensity = 6;
-    const greenLightDistance = 100;
+    const greenLightIntensity = 2;
+    const greenLightDistance = 1;
     const greenLightDecay = 1;
 
     const greenLightPositions = [
@@ -181,31 +172,12 @@ class UFO extends THREE.Object3D {
     });
   }
 
-  positionateOnTube(tubeGeometry, t) {
-    const path = tubeGeometry.parameters.path;
-    const pos = path.getPointAt(t);
-    this.positionOnTube.position.copy(pos);
+  update() {
+    this.animationTime += 0.001;
 
-    const tangent = path.getTangentAt(t);
-    pos.add(tangent);
-
-    const segment = Math.floor(t * tubeGeometry.parameters.tubularSegments);
-    this.positionOnTube.up = tubeGeometry.normals[segment];
-    this.positionOnTube.lookAt(pos);
-
-    this.orientationNode.rotation.z = this.angularPosition;
-  }
-
-  update(delta) {
-    this.animationTime += delta;
-
-    this.ufo.rotation.y += this.rotationSpeed * delta;
-
-    const bobbingMovement = this.bobbingAmplitude * Math.sin(this.animationTime * this.bobbingFrequency);
-    this.ufo.position.y = 7 + bobbingMovement; 
-
-    const horizontalMovement = this.horizontalMovementAmplitude * Math.sin(this.animationTime * this.horizontalMovementFrequency);
-    this.ufo.position.x = horizontalMovement;
+    this.ufo.position.y = 2.3 + Math.sin(this.animationTime * this.bobbingFrequency) * this.bobbingAmplitude;
+    this.ufo.rotation.y += this.rotationSpeed * 0.01;
+    this.ufo.position.x = Math.sin(this.animationTime * this.horizontalMovementFrequency) * this.horizontalMovementAmplitude;
   }
 }
 
